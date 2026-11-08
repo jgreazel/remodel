@@ -1,0 +1,31 @@
+Polk County Assessor — building sketch, residence 1
+Parcel 171/00178-117-000 (geo 7923-13-101-060), 514 Village Ct, Altoona IA
+Source: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=sketch/big_sketch&dp=17100178117000&tabname=residence&id=1&database=
+Retrieved: 2026-11-08 (read in a browser; transcribed verbatim below)
+Screenshot of the rendered sketch: polk-assessor-sketch-2026-11-08-screenshot.jpg
+
+Sketch Vector
+L1B:SU24R18U1R20D26L20U1L18/L:R18D1SD1R20/L:U24R18U1SU1R20/TY:U24SU12R12/
+W:R12SD5R6Z
+
+Polygons
+Label  Story Height  Basement%  Base Area  Perimeter
+L      1             100        952        128
+L      1             0          20         42
+L      1             0          20         42
+TY     2             0          144        48
+W      1             0          30         22
+
+Areas
+basemnt_area   952
+patio_area     144
+deck_area      30
+canopy_sf      144
+main_lv_area   992
+tsfla          992
+
+Vector notation: U/D/R/L = up/down/right/left in feet, S = start drawing
+(moves before S are pen-up). North is not indicated on the sketch.
+
+Detached structure (parcel page, same date): garage, frame, 24 x 24, built 1982,
+grade 4, condition Above Normal.
