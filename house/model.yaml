@@ -77,11 +77,11 @@ stairs:
 # Openings: wall = front (y min) | back (y max) | left (x min) | right (x max) of the level's footprint.
 # span = [start, end] along the wall in model x (front/back) or y (left/right). sill/head = z above level floor.
 openings:
-  - {id: front_door,         level: main,  wall: front, kind: door,   span: [12.5, 15.5], sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; stoop at x 12-18; Jon: walk straight in to the stairs"}
-  - {id: living_window,      level: main,  wall: front, kind: window, span: [3, 9],       sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1"}
+  - {id: front_door,         level: main,  wall: front, kind: door,   span: [14, 17],     sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo; stoop at x 12-18; Jon: walk straight in to the stairs"}
+  - {id: living_window,      level: main,  wall: front, kind: window, span: [5, 10.5],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo; flush with wall"}
   - {id: patio_slider,       level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Jon 2026-11-08: kitchen sliders to back; canopy x 0-12"}
-  - {id: upper_front_window, level: upper, wall: front, kind: window, span: [28, 34],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; Jon: main bedroom windows face front"}
-  - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25, 31],     sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; partly below grade"}
+  - {id: upper_front_window, level: upper, wall: front, kind: window, span: [26, 32],     sill: 2.5, head: 6.75, bay: {depth: 1.0, roof: shed}, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo: box bump-out with its own shed roof; Jon: main bedroom windows face front"}
+  - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25.5, 31],   sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; partly below grade"}
 
 roofs:
   - {id: main_roof,  over: main,  form: gable, ridge_axis: x, pitch: "5/12", overhang: 1.0, prov: inferred, conf: medium, tol: 1, src: "Z1 side gable; A gable/asphalt"}
@@ -93,8 +93,18 @@ site:
   grade_z: {value: -2.5, prov: inferred, conf: low, tol: 1, src: "Z1: main floor ~3 steps above grade at stoop"}
   driveway_side: {value: left, prov: measured, src: "Jon 2026-11-08: basement shelves on driveway side; garage behind-left"}
   features:
-    - {id: canopy_patio, kind: patio_with_pergola, rect: [0, 24, 12, 36], prov: imported, tol: 1, src: "P sketch TY 12 x 12; Z19-23"}
-    - {id: front_stoop,  kind: deck,               rect: [12, -5, 18, 0], prov: imported, tol: 1, src: "P sketch W 5 x 6; Z1"}
+    - {id: brick_patio, kind: patio, surface: brick, rect: [0, 24, 12, 36], prov: imported, tol: 1, src: "P sketch TY 12 x 12; Z19-23; Jon 2026-11-08: canopy removed, brick patio remains"}
+    - {id: front_stoop, kind: deck,                  rect: [12, -5, 18, 0], prov: imported, tol: 1, src: "P sketch W 5 x 6; Z1"}
+
+  # Hardscape and beds. poly = [[x, y], ...] outline at grade. All read off listing photo Z1 (2022): conf low.
+  landscape:
+    - {id: front_walk,    kind: walk,     surface: concrete,   rect: [-6, -8, 15, -5], prov: inferred, conf: low, tol: 2, src: "Z1: walk from driveway along the front to the stoop"}
+    - {id: driveway,      kind: driveway, surface: concrete,   rect: [-18, -30, -6, 38], prov: inferred, conf: low, tol: 5, src: "Z1 drive at far left; Jon 2026-11-08: driveway side = left, garage behind-left"}
+    - {id: bed_front_left,  kind: bed, surface: mulch,      poly: [[0, 0], [0, -4.5], [12, -4.5], [12, 0]], prov: inferred, conf: low, tol: 2, src: "Z1: bed under living window, between walk and brick"}
+    - {id: bed_front_right, kind: bed, surface: rock_mulch, poly: [[18, -1], [18, -5], [22, -5.6], [26, -4.4], [30, -6], [35, -5.4], [40, -4.8], [40, -1]], prov: inferred, conf: low, tol: 2, src: "Z1: rock bed with curved edging under the lower-level window, past the right corner"}
+  plants:
+    - {id: shrub_left_of_stoop,  kind: shrub, at: [8.5, -2.5], dia: 5, height: 6, prov: inferred, conf: low, tol: 2, src: "Z1"}
+    - {id: shrub_right_of_stoop, kind: shrub, at: [21, -3],    dia: 4.5, height: 6, prov: inferred, conf: low, tol: 2, src: "Z1"}
   outbuildings:
     - {id: garage, kind: detached_garage, rect: [-20, 38, 4, 62], year_built: 1982, prov: inferred, conf: low, tol: 10, src: "size P (24 x 24); position Jon 2026-11-08 'behind and to the left'; Z20"}
 

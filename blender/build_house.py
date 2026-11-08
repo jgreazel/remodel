@@ -13,6 +13,7 @@ import math
 import sys
 from pathlib import Path
 
+import bmesh
 import bpy
 from mathutils import Vector
 
@@ -33,6 +34,15 @@ DIM = (0.75, 0.1, 0.1, 1)
 ROOF = (0.45, 0.42, 0.4, 1)
 SITE = (0.7, 0.75, 0.68, 1)
 STAIRWELL = (0.78, 0.74, 0.7, 1)
+GLASS = (0.55, 0.68, 0.78, 1)
+BAY = (0.42, 0.42, 0.4, 1)
+PLANT = (0.22, 0.4, 0.2, 1)
+SURFACE = {
+    "brick": (0.62, 0.36, 0.28, 1),
+    "concrete": (0.8, 0.79, 0.76, 1),
+    "mulch": (0.38, 0.27, 0.18, 1),
+    "rock_mulch": (0.66, 0.62, 0.56, 1),
+}
 LABEL_LIFT = 6.0  # plan labels float above treads and furniture-height geometry, below the level's ceiling
 
 
@@ -207,15 +217,78 @@ def build_roofs():
         mesh_obj(f"roof.{r['id']}", v, f, ROOF, ["roof"])
 
 
+def prism(name, poly, z0, z1, color, levels):
+    n = len(poly)
+    v = [(x, y, z0) for x, y in poly] + [(x, y, z1) for x, y in poly]
+    f = [tuple(range(n - 1, -1, -1)), tuple(range(n, 2 * n))]
+    f += [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+    return mesh_obj(name, v, f, color, levels)
+
+
+def build_openings():
+    """Glass panes in window openings, and box bump-outs (bays) with a shed roof where declared."""
+    for o in M["openings"]:
+        if o["kind"] != "window":
+            continue
+        lv = LEVELS[o["level"]]
+        x0, y0, x1, y1 = lv["rect"]
+        z = lv["floor_z"]
+        s, e = o["span"]
+        zs, zh = z + o["sill"], z + o["head"]
+        bay = o.get("bay")
+        if bay and o["wall"] in ("front", "back"):
+            d = bay["depth"]
+            wall_y, out = (y0, -1) if o["wall"] == "front" else (y1, 1)
+            face = wall_y + out * d
+            ya, yb = sorted((wall_y, face))
+            box(f"bay.{o['id']}.body", s - 0.4, ya, zs - 0.6, e + 0.4, yb, zh + 0.35, BAY, [o["level"]])
+            pa, pb = sorted((face, face + out * 0.04))
+            box(f"bay.{o['id']}.glass", s, pa, zs, e, pb, zh, GLASS, [o["level"]])
+            # shed roof: high at the wall, low past the face
+            eave = face + out * 0.5
+            zt = zh + 0.35
+            v = [(s - 0.6, wall_y, zt + 0.9), (e + 0.6, wall_y, zt + 0.9), (e + 0.6, eave, zt + 0.15), (s - 0.6, eave, zt + 0.15)]
+            v += [(x, y, zz - 0.2) for x, y, zz in v]
+            f = [(0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+            mesh_obj(f"bay.{o['id']}.roof", v, f, ROOF, [o["level"], "roof"])
+            continue
+        t, m = EXT_T, 0.03
+        if o["wall"] == "front":
+            box(f"glass.{o['id']}", s, y0 + t / 2 - m, zs, e, y0 + t / 2 + m, zh, GLASS, [o["level"]])
+        elif o["wall"] == "back":
+            box(f"glass.{o['id']}", s, y1 - t / 2 - m, zs, e, y1 - t / 2 + m, zh, GLASS, [o["level"]])
+        elif o["wall"] == "left":
+            box(f"glass.{o['id']}", x0 + t / 2 - m, s, zs, x0 + t / 2 + m, e, zh, GLASS, [o["level"]])
+        else:
+            box(f"glass.{o['id']}", x1 - t / 2 - m, s, zs, x1 - t / 2 + m, e, zh, GLASS, [o["level"]])
+
+
 def build_site():
     g = M["site"]["grade_z"]
     box("ground", -60, -50, g - 0.5, 90, 110, g, (0.62, 0.7, 0.55, 1), ["ground"])
+    for ls in M["site"].get("landscape", []):
+        poly = ls.get("poly") or [[ls["rect"][0], ls["rect"][1]], [ls["rect"][2], ls["rect"][1]],
+                                  [ls["rect"][2], ls["rect"][3]], [ls["rect"][0], ls["rect"][3]]]
+        hgt = {"bed": 0.12, "walk": 0.06, "driveway": 0.04}.get(ls["kind"], 0.05)
+        prism(f"landscape.{ls['id']}", poly, g, g + hgt, SURFACE.get(ls.get("surface"), SITE), ["site", "main"])
+        cx = sum(p[0] for p in poly) / len(poly)
+        cy = sum(p[1] for p in poly) / len(poly)
+        text(f"label.{ls['id']}", ls["id"], cx, cy, 0.0, 0.45, INK, ["label:main"])
+    for p in M["site"].get("plants", []):
+        me = bpy.data.meshes.new(p["id"])
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=10, radius=1.0)
+        bm.to_mesh(me)
+        bm.free()
+        ob = tag(bpy.data.objects.new(f"plant.{p['id']}", me), p["id"], PLANT, ["site", "main"])
+        ob.location = (p["at"][0], p["at"][1], g + p["height"] / 2)
+        ob.scale = (p["dia"] / 2, p["dia"] / 2, p["height"] / 2)
     for ft in M["site"]["features"]:
         x0, y0, x1, y1 = ft["rect"]
         if ft["kind"] == "deck":
             box(f"feature.{ft['id']}", x0, y0, g, x1, y1, -0.6, SITE, ["site", "main"])
         else:
-            box(f"feature.{ft['id']}", x0, y0, g, x1, y1, g + 0.33, SITE, ["site", "main"])
+            box(f"feature.{ft['id']}", x0, y0, g, x1, y1, g + 0.25, SURFACE.get(ft.get("surface"), SITE), ["site", "main"])
             if "pergola" in ft["kind"]:
                 box(f"feature.{ft['id']}.pergola", x0, y0, 7.5, x1, y1, 7.9, (0.6, 0.55, 0.45, 1), ["site"])
         text(f"label.{ft['id']}", ft["id"], (x0 + x1) / 2, (y0 + y1) / 2, 0.2, 0.55, INK, ["label:main"])
@@ -281,6 +354,41 @@ def bounds():
     return min(xs), min(ys), max(xs), max(ys)
 
 
+def organize_for_viewing(sc):
+    """Group objects into one collection per level (plus roof/site/ground/labels) so the saved
+    .blend can be explored level by level in the Outliner. Plan labels start hidden: they float
+    at eye height and only make sense in the top-down renders."""
+    root = sc.collection
+    labels = bpy.data.collections.new("labels (plan renders)")
+    root.children.link(labels)
+    cols = {}
+    for name in [*LEVEL_ORDER[::-1], "roof", "site", "ground"]:
+        cols[name] = bpy.data.collections.new(name)
+        root.children.link(cols[name])
+    for ob in list(root.objects):
+        lv = list(ob.get("levels", []))
+        if not lv:
+            continue
+        key = lv[0]
+        if key.startswith("label:"):
+            sub = cols.get(key)
+            if sub is None:
+                sub = cols[key] = bpy.data.collections.new(f"labels {key[6:]}")
+                labels.children.link(sub)
+            sub.objects.link(ob)
+        else:
+            cols[key].objects.link(ob)
+        root.objects.unlink(ob)
+    sc.view_layers[0].layer_collection.children[labels.name].hide_viewport = True
+    for scr in bpy.data.screens:
+        for area in scr.areas:
+            for space in area.spaces:
+                if space.type == "VIEW_3D":
+                    space.shading.type = "SOLID"
+                    space.shading.color_type = "OBJECT"
+                    space.clip_end = 1000
+
+
 def render(sc, path):
     sc.render.filepath = str(path)
     bpy.ops.render.render(write_still=True)
@@ -294,6 +402,7 @@ def main():
         build_level(name)
     build_rooms()
     build_stairs()
+    build_openings()
     build_roofs()
     build_site()
     bx0, by0, bx1, by1 = bounds()
@@ -326,6 +435,7 @@ def main():
     render(sc, OUT / "exterior-front-left.png")
 
     show_only(lambda lv: True)
+    organize_for_viewing(sc)
     bpy.ops.wm.save_as_mainfile(filepath=str(OUT / "house.blend"), compress=True)
     log(f"objects={len(bpy.data.objects)}")
     log("DONE")

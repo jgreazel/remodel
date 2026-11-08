@@ -98,6 +98,8 @@ def resolve(m: dict) -> dict:
             "front_bearing_deg": val(site.get("front_bearing_deg")),
             "features": site.get("features", []),
             "outbuildings": site.get("outbuildings", []),
+            "landscape": site.get("landscape", []),
+            "plants": site.get("plants", []),
         },
     }
 
@@ -110,6 +112,8 @@ def resources(m: dict) -> dict[str, dict]:
     site = m.get("site", {})
     res.update({f"feature.{e['id']}": e for e in site.get("features", [])})
     res.update({f"outbuilding.{e['id']}": e for e in site.get("outbuildings", [])})
+    res.update({f"landscape.{e['id']}": e for e in site.get("landscape", [])})
+    res.update({f"plant.{e['id']}": e for e in site.get("plants", [])})
     for k in ("grade_z", "front_bearing_deg", "driveway_side"):
         if k in site:
             res[f"site.{k}"] = site[k]
@@ -215,6 +219,26 @@ def validate(m: dict) -> tuple[list[str], list[str], list[str]]:
             errors.append(f"opening.{o['id']}: span {o['span']} not on {o['level']} {o['wall']} wall ({lo}..{hi})")
         if o["head"] > val(lv["ceiling_height"]):
             errors.append(f"opening.{o['id']}: head above ceiling")
+
+    site = m.get("site", {})
+    for sec in ("features", "outbuildings", "landscape", "plants"):
+        for e in site.get(sec, []):
+            addr = f"site.{sec}.{e.get('id')}"
+            if "prov" not in e:
+                errors.append(f"{addr}: missing prov")
+            prov_rule(addr, e)
+            if "rect" in e and not rect_ok(e["rect"]):
+                errors.append(f"{addr}: bad rect {e['rect']}")
+            if "poly" in e and (len(e["poly"]) < 3 or any(len(p) != 2 for p in e["poly"])):
+                errors.append(f"{addr}: poly needs 3+ [x, y] points")
+            if sec in ("features", "outbuildings", "landscape") and not ("rect" in e or "poly" in e):
+                errors.append(f"{addr}: needs rect or poly")
+            if sec == "plants" and not ("at" in e and "dia" in e and "height" in e):
+                errors.append(f"{addr}: plant needs at, dia, height")
+
+    for o in m.get("openings", []):
+        if "bay" in o and (o["wall"] not in ("front", "back") or o["bay"].get("depth", 0) <= 0):
+            errors.append(f"opening.{o['id']}: bay needs front/back wall and depth > 0")
 
     for c in m.get("checks", []):
         if c["kind"] == "footprint_area_sum":

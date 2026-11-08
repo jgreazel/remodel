@@ -44,7 +44,7 @@ _Public facts about the house. Every entry gets a source and a date retrieved. P
 | Lot shape | Irregular, normal topography | researched | P |
 | Permits on file | 1 — 1995 "replace step" (applied 1994-05-09, complete). No remodel permit on record for the main-level update. | researched | P |
 | Sale history | 2006 $154,730 · 2017 $171,500 · 2020 $200,000 · 2022 $245,000 | researched | P |
-| Patio / canopy | 144 sf patio + 144 sf canopy (the covered patio off the dining sliders) | researched | A, Z |
+| Patio / canopy | 144 sf brick patio off the kitchen sliders. The assessor still lists a 144 sf canopy, but **the canopy/pergola has been removed** (Jon, 2026-11-08); the brick patio remains. | measured | A, Z, Jon |
 | Deck | 30 sf (probably a stoop or landing) | researched | A |
 | Radon | Mitigation system installed | researched | Z |
 | Construction grade | 4+05; condition "Normal" | researched | A |
