@@ -23,9 +23,9 @@ Saves money and time: no paid contractor/designer consultations, and no time spe
 
 1. **Research** — Find everything public about the house (year built, square footage, lot, permits, listing photos, assessor records, builder/subdivision). Record findings with sources in `house/research.md`. Look for blueprints/floor plans as a potential import source.
 2. **Measurement interview** — Interview Jon room by room for measurements, using research and imports to pre-fill and ask only for what's missing or uncertain. Write results to `house/model.yaml`.
-3. **Build** — `blender/build_house.py` generates the scene from `house/model.yaml`. Verify against the tolerance above.
+3. **Build** — house as code: `python blender/pipeline.py validate | plan | apply` turns `house/model.yaml` into `blender/out/` (plans, exterior, `.blend`, `verify.md`, `state.json`). Verify against the tolerance above. See `blender/README.md`.
 4. **Consultation** — Capture the goal for a project in `projects/<slug>/01-consultation.md`, grounded in `household/preferences.md`.
-5. **Options** — Explore feasible variants in `02-options.md` (model diffs + renders).
+5. **Options** — Explore feasible variants in `02-options.md`. Each option is an overlay YAML in `projects/<slug>/`, built with `pipeline.py apply --overlay`; its `plan` output is the change list.
 6. **Proposal** — `03-proposal.md`: chosen design, mockups, estimate, design recommendations, open risks.
 7. **Retro** — Write `retros/<date>-<slug>.md` and update the affected skills.
 

@@ -5,15 +5,16 @@
 #   prov: measured | imported | researched | inferred   (measured > imported > researched > inferred)
 #   tol:  tolerance in feet for that entry's numbers
 #   conf: (inferred only) high | medium | low
-#   src:  short pointer to the evidence (research.md source letters: A, P, Z)
+#   src:  short pointer to the evidence (research.md source letters: A, P, Z; "Jon <date>" = walkthrough answers)
 #
 # Coordinates:
 #   origin = front-left exterior corner of the main section, at main-level finished floor
 #   +x = along the front, toward the two-story stack (to the right when facing the house from the street)
 #   +y = front → back
 #   +z = up
-#   Compass bearing of +y is unknown (see open questions).
+#   Compass: the front faces SSE (see site.front_bearing_deg), so +y points NNW and +x points ENE.
 # Rectangles are [x0, y0, x1, y1] in feet, exterior face of framing/siding unless noted.
+# Where a stair rect overlaps a room rect, the stair wins (stairwells are cut out of rooms).
 
 units: ft
 schema_version: 1
@@ -27,12 +28,12 @@ levels:
     footprint: {rect: [0, 0, 18, 24], prov: imported, tol: 1, src: "P sketch L1B (18 x 24)"}
     floor_z: {value: 0, prov: inferred, conf: high, tol: 0, src: "datum"}
     ceiling_height: {value: 8, prov: inferred, conf: medium, tol: 0.5, src: "era norm, 8 ft"}
-    description: "Entry, living room, kitchen, dining. Sliders to the covered patio."
+    description: "Two spaces: living room (front, front door) and kitchen/dining (back, sliders to patio)."
   upper:
     footprint: {rect: [18, -2, 38, 26], prov: imported, tol: 1, src: "P sketch: 20 x 26 + two 1 x 20 strips (overhang)"}
     floor_z: {value: 4.5, prov: inferred, conf: medium, tol: 0.5, src: "4-split half-flight ~7 risers"}
     ceiling_height: {value: 8, prov: inferred, conf: medium, tol: 0.5}
-    description: "3 bedrooms + full bath. Overhangs the lower level ~1 ft front and back (photo Z1)."
+    description: "Center hall running +x from the stair; bath + main bedroom on the front, two bedrooms on the back."
   lower:
     footprint: {rect: [18, -1, 38, 25], prov: imported, tol: 1, src: "P sketch L1B east section (20 x 26)"}
     floor_z: {value: -4.0, prov: inferred, conf: medium, tol: 0.5, src: "4-split half-flight down"}
@@ -42,55 +43,69 @@ levels:
     footprint: {rect: [0, 0, 18, 24], prov: inferred, conf: high, tol: 1, src: "under main; P basement 952 = 432 + 520"}
     floor_z: {value: -8.5, prov: inferred, conf: medium, tol: 0.5}
     ceiling_height: {value: 7.5, prov: inferred, conf: low, tol: 0.5}
-    description: "Laundry, storage, non-conforming 4th bedroom (Z listing). Assessor carries it as unfinished."
+    description: "Small finished bedroom (non-conforming) at the stair foot; unfinished L around it with laundry and a wall of shelves on the driveway (left, x=0) side."
 
-# Room layout is cycle-1 guesswork from listing photos and the typical 4-split plan.
-# All rooms: prov inferred, conf low, tol 2 ft. Interior rectangles (inside exterior walls, approx).
+# Room topology on main, upper and basement comes from Jon's walkthrough (2026-11-08): conf medium.
+# Room sizes are still guesses that fit the footprint: tol 2 ft.
 rooms:
-  - {id: living_room, level: main,     rect: [0.5, 0.5, 17.5, 12],  prov: inferred, conf: low, tol: 2, src: "Z2-3; front door opens into it"}
-  - {id: dining,      level: main,     rect: [0.5, 12, 8.5, 23.5],  prov: inferred, conf: low, tol: 2, src: "Z4-9; sliders to canopy at x 0-12"}
-  - {id: kitchen,     level: main,     rect: [8.5, 12, 17.5, 23.5], prov: inferred, conf: low, tol: 2, src: "Z4-9; island"}
-  - {id: bedroom_1,   level: upper,    rect: [26, -1.5, 37.5, 12],  prov: inferred, conf: low, tol: 2}
-  - {id: bath_full,   level: upper,    rect: [18.5, -1.5, 26, 5],   prov: inferred, conf: low, tol: 2, src: "Z listing: tiled floor, tub"}
-  - {id: hall_upper,  level: upper,    rect: [18.5, 5, 26, 14],     prov: inferred, conf: low, tol: 2, src: "stair arrival + closets"}
-  - {id: bedroom_2,   level: upper,    rect: [18.5, 14, 28, 25.5],  prov: inferred, conf: low, tol: 2}
-  - {id: bedroom_3,   level: upper,    rect: [28, 12, 37.5, 25.5],  prov: inferred, conf: low, tol: 2, src: "Z15 office use"}
-  - {id: family_room, level: lower,    rect: [18.5, 6, 37.5, 24.5], prov: inferred, conf: low, tol: 2, src: "Z10-14; fireplace + built-ins"}
-  - {id: bath_half,   level: lower,    rect: [18.5, -0.5, 24, 6],   prov: inferred, conf: low, tol: 2, src: "Z listing text"}
-  - {id: lower_flex,  level: lower,    rect: [24, -0.5, 37.5, 6],   prov: inferred, conf: low, tol: 2, src: "placeholder: closet/storage/stair"}
-  - {id: bedroom_4,   level: basement, rect: [0.5, 0.5, 11, 12],    prov: inferred, conf: low, tol: 2, src: "Z listing: non-conforming"}
-  - {id: laundry_storage, level: basement, rect: [0.5, 12, 17.5, 23.5], prov: inferred, conf: low, tol: 2, src: "Z listing"}
+  # main — "only two things on the level"
+  - {id: living_room,     level: main,     rect: [0.5, 0.5, 17.5, 11],    prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: front door opens into it; Z2-3"}
+  - {id: kitchen_dining,  level: main,     rect: [0.5, 11, 17.5, 23.5],   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: kitchen opens to back via sliders; Z4-9"}
+  # upper — climb heading +x; bath is the first door on the right (front wall); main bedroom shares a wall with it, front windows
+  - {id: hall_upper,      level: upper,    rect: [18.5, 11, 37.5, 14.5],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: stairs land at center, hall runs +x"}
+  - {id: bath_full,       level: upper,    rect: [18.5, -1.5, 24.5, 7],   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: first door on right, on front wall"}
+  - {id: linen_closet,    level: upper,    rect: [18.5, 7, 24.5, 11],     prov: inferred, conf: low,    tol: 2, src: "fill between bath and hall"}
+  - {id: bedroom_main,    level: upper,    rect: [24.5, -1.5, 37.5, 11],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: largest; shares wall with bath; front windows"}
+  - {id: bedroom_2,       level: upper,    rect: [18.5, 14.5, 28, 25.5],  prov: inferred, conf: low,    tol: 2, src: "back side; split of back band is a guess"}
+  - {id: bedroom_3,       level: upper,    rect: [28, 14.5, 37.5, 25.5],  prov: inferred, conf: low,    tol: 2, src: "back side; Z15 office use"}
+  # lower — not yet described by Jon
+  - {id: family_room,     level: lower,    rect: [18.5, 6, 37.5, 24.5],   prov: inferred, conf: low,    tol: 2, src: "Z10-14; fireplace + built-ins"}
+  - {id: bath_half,       level: lower,    rect: [18.5, -0.5, 24, 6],     prov: inferred, conf: low,    tol: 2, src: "Z listing text; position unknown"}
+  - {id: lower_flex,      level: lower,    rect: [24, -0.5, 37.5, 6],     prov: inferred, conf: low,    tol: 2, src: "placeholder"}
+  # basement — bedroom immediately right at the stair foot; unfinished L around it
+  - {id: bedroom_4,       level: basement, rect: [5, 15, 17.5, 23.5],     prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: smallish, right of stair foot (non-conforming)"}
+  - {id: unfinished,      level: basement, rect: [0.5, 0.5, 17.5, 23.5],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: L of unfinished: laundry + shelves along driveway (x=0) wall", finished: false, note: "L-shaped: this rect minus bedroom_4 and stairs"}
 
-# Stairs: all half-flights run along the shared wall at x = 18 (typical 4-split). Positions are guesses.
+# Classic 4-split stair stack (conf medium from Jon's description):
+# main→upper rises heading +x from the center of the house; lower→basement runs under it heading -x;
+# main→lower runs beside it on the kitchen side.
 stairs:
-  - {id: main_to_upper,   from: main,  to: upper,    rect: [14.5, 4, 17.5, 11],  prov: inferred, conf: low, tol: 2}
-  - {id: main_to_lower,   from: main,  to: lower,    rect: [14.5, 13, 17.5, 20], prov: inferred, conf: low, tol: 2, src: "Z12-13: rail rises from family room toward dining"}
-  - {id: lower_to_basement, from: lower, to: basement, rect: [14.5, 13, 17.5, 20], prov: inferred, conf: low, tol: 3, src: "often stacked under main_to_lower"}
+  - {id: main_to_upper,     from: main,  to: upper,    rect: [12, 11, 18.5, 14.5],   dir: "+x", prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: walk to center, turn right to go up"}
+  - {id: main_to_lower,     from: main,  to: lower,    rect: [12, 14.5, 18.5, 17.5], dir: "+x", prov: inferred, conf: low,    tol: 2, src: "Z: family room 'steps off the dining area'"}
+  - {id: lower_to_basement, from: lower, to: basement, rect: [12, 11, 18.5, 14.5],   dir: "-x", prov: inferred, conf: medium, tol: 2, src: "under main_to_upper; descending -x puts bedroom_4 on the right (+y)"}
 
 # Openings: wall = front (y min) | back (y max) | left (x min) | right (x max) of the level's footprint.
 # span = [start, end] along the wall in model x (front/back) or y (left/right). sill/head = z above level floor.
 openings:
-  - {id: front_door,    level: main,  wall: front, kind: door,   span: [12.5, 15.5], sill: 0,   head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1; stoop at x 12-18"}
-  - {id: living_window, level: main,  wall: front, kind: window, span: [3, 9],       sill: 3,   head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1"}
-  - {id: patio_slider,  level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0,   head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Z listing; canopy x 0-12"}
-  - {id: upper_front_window, level: upper, wall: front, kind: window, span: [25, 31], sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1"}
-  - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25, 31], sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1; partly below grade"}
+  - {id: front_door,         level: main,  wall: front, kind: door,   span: [12.5, 15.5], sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; stoop at x 12-18; Jon: walk straight in to the stairs"}
+  - {id: living_window,      level: main,  wall: front, kind: window, span: [3, 9],       sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1"}
+  - {id: patio_slider,       level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Jon 2026-11-08: kitchen sliders to back; canopy x 0-12"}
+  - {id: upper_front_window, level: upper, wall: front, kind: window, span: [28, 34],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; Jon: main bedroom windows face front"}
+  - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25, 31],     sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; partly below grade"}
 
 roofs:
   - {id: main_roof,  over: main,  form: gable, ridge_axis: x, pitch: "5/12", overhang: 1.0, prov: inferred, conf: medium, tol: 1, src: "Z1 side gable; A gable/asphalt"}
   - {id: stack_roof, over: upper, form: gable, ridge_axis: y, pitch: "6/12", overhang: 1.0, prov: inferred, conf: medium, tol: 1, src: "Z1 front-facing gable"}
 
 site:
+  front_bearing_deg: {value: 157.5, prov: measured, tol: 22.5, src: "Jon 2026-11-08: front door faces SSE"}
   lot_area_sf: {value: 10846, prov: researched, src: A}
   grade_z: {value: -2.5, prov: inferred, conf: low, tol: 1, src: "Z1: main floor ~3 steps above grade at stoop"}
+  driveway_side: {value: left, prov: measured, src: "Jon 2026-11-08: basement shelves on driveway side; garage behind-left"}
   features:
     - {id: canopy_patio, kind: patio_with_pergola, rect: [0, 24, 12, 36], prov: imported, tol: 1, src: "P sketch TY 12 x 12; Z19-23"}
     - {id: front_stoop,  kind: deck,               rect: [12, -5, 18, 0], prov: imported, tol: 1, src: "P sketch W 5 x 6; Z1"}
   outbuildings:
-    - {id: garage, kind: detached_garage, size: [24, 24], year_built: 1982, position: unknown, prov: researched, src: "P detached structure; Z20"}
+    - {id: garage, kind: detached_garage, rect: [-20, 38, 4, 62], year_built: 1982, prov: inferred, conf: low, tol: 10, src: "size P (24 x 24); position Jon 2026-11-08 'behind and to the left'; Z20"}
+
+# Declarative assertions the pipeline checks on every validate/plan/apply.
+checks:
+  - {id: assessor_living_area,   kind: footprint_area_sum, levels: [main, upper],     expect_sf: 992, tol_sf: 25, src: "A main_lv_area 992"}
+  - {id: assessor_basement_area, kind: footprint_area_sum, levels: [basement, lower], expect_sf: 952, tol_sf: 25, src: "A basemnt_area 952"}
+  - {id: assessor_finished_bsmt, kind: footprint_area_sum, levels: [lower],           expect_sf: 520, tol_sf: 25, src: "A finished basement 520"}
 
 open_questions:
-  - "Compass direction the front faces."
-  - "Room layout: which rooms sit where on each level (everything under rooms/stairs is a low-confidence guess)."
-  - "Garage position relative to the house."
+  - "Lower level: where are the half bath and the fireplace?"
+  - "Upper back: how do bedrooms 2 and 3 split the back half (equal, or one bigger)?"
   - "Gas meter present? (heat: assessor electric vs Zillow gas)"
+  - "Garage: rough distance behind the house and from the left wall (paces are fine)."
