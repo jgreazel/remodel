@@ -1,0 +1,96 @@
+# 514 Village Ct — source of truth for the house model.
+# Cycle 1 precision: ±1 ft (assessor-sketch resolution). See CLAUDE.md "Precision is progressive".
+#
+# Every geometric entry carries:
+#   prov: measured | imported | researched | inferred   (measured > imported > researched > inferred)
+#   tol:  tolerance in feet for that entry's numbers
+#   conf: (inferred only) high | medium | low
+#   src:  short pointer to the evidence (research.md source letters: A, P, Z)
+#
+# Coordinates:
+#   origin = front-left exterior corner of the main section, at main-level finished floor
+#   +x = along the front, toward the two-story stack (to the right when facing the house from the street)
+#   +y = front → back
+#   +z = up
+#   Compass bearing of +y is unknown (see open questions).
+# Rectangles are [x0, y0, x1, y1] in feet, exterior face of framing/siding unless noted.
+
+units: ft
+schema_version: 1
+
+defaults:
+  exterior_wall_thickness: {value: 0.5, prov: inferred, conf: high, tol: 0.1, src: "2x4 + sheathing + hardboard siding"}
+  interior_wall_thickness: {value: 0.375, prov: inferred, conf: high, tol: 0.1, src: "2x4 + 1/2in drywall both sides"}
+
+levels:
+  main:
+    footprint: {rect: [0, 0, 18, 24], prov: imported, tol: 1, src: "P sketch L1B (18 x 24)"}
+    floor_z: {value: 0, prov: inferred, conf: high, tol: 0, src: "datum"}
+    ceiling_height: {value: 8, prov: inferred, conf: medium, tol: 0.5, src: "era norm, 8 ft"}
+    description: "Entry, living room, kitchen, dining. Sliders to the covered patio."
+  upper:
+    footprint: {rect: [18, -2, 38, 26], prov: imported, tol: 1, src: "P sketch: 20 x 26 + two 1 x 20 strips (overhang)"}
+    floor_z: {value: 4.5, prov: inferred, conf: medium, tol: 0.5, src: "4-split half-flight ~7 risers"}
+    ceiling_height: {value: 8, prov: inferred, conf: medium, tol: 0.5}
+    description: "3 bedrooms + full bath. Overhangs the lower level ~1 ft front and back (photo Z1)."
+  lower:
+    footprint: {rect: [18, -1, 38, 25], prov: imported, tol: 1, src: "P sketch L1B east section (20 x 26)"}
+    floor_z: {value: -4.0, prov: inferred, conf: medium, tol: 0.5, src: "4-split half-flight down"}
+    ceiling_height: {value: 7.5, prov: inferred, conf: medium, tol: 0.5}
+    description: "Family room with wood-burning fireplace + built-ins, ½ bath. Partly below grade. = assessor's 520 sf finished."
+  basement:
+    footprint: {rect: [0, 0, 18, 24], prov: inferred, conf: high, tol: 1, src: "under main; P basement 952 = 432 + 520"}
+    floor_z: {value: -8.5, prov: inferred, conf: medium, tol: 0.5}
+    ceiling_height: {value: 7.5, prov: inferred, conf: low, tol: 0.5}
+    description: "Laundry, storage, non-conforming 4th bedroom (Z listing). Assessor carries it as unfinished."
+
+# Room layout is cycle-1 guesswork from listing photos and the typical 4-split plan.
+# All rooms: prov inferred, conf low, tol 2 ft. Interior rectangles (inside exterior walls, approx).
+rooms:
+  - {id: living_room, level: main,     rect: [0.5, 0.5, 17.5, 12],  prov: inferred, conf: low, tol: 2, src: "Z2-3; front door opens into it"}
+  - {id: dining,      level: main,     rect: [0.5, 12, 8.5, 23.5],  prov: inferred, conf: low, tol: 2, src: "Z4-9; sliders to canopy at x 0-12"}
+  - {id: kitchen,     level: main,     rect: [8.5, 12, 17.5, 23.5], prov: inferred, conf: low, tol: 2, src: "Z4-9; island"}
+  - {id: bedroom_1,   level: upper,    rect: [26, -1.5, 37.5, 12],  prov: inferred, conf: low, tol: 2}
+  - {id: bath_full,   level: upper,    rect: [18.5, -1.5, 26, 5],   prov: inferred, conf: low, tol: 2, src: "Z listing: tiled floor, tub"}
+  - {id: hall_upper,  level: upper,    rect: [18.5, 5, 26, 14],     prov: inferred, conf: low, tol: 2, src: "stair arrival + closets"}
+  - {id: bedroom_2,   level: upper,    rect: [18.5, 14, 28, 25.5],  prov: inferred, conf: low, tol: 2}
+  - {id: bedroom_3,   level: upper,    rect: [28, 12, 37.5, 25.5],  prov: inferred, conf: low, tol: 2, src: "Z15 office use"}
+  - {id: family_room, level: lower,    rect: [18.5, 6, 37.5, 24.5], prov: inferred, conf: low, tol: 2, src: "Z10-14; fireplace + built-ins"}
+  - {id: bath_half,   level: lower,    rect: [18.5, -0.5, 24, 6],   prov: inferred, conf: low, tol: 2, src: "Z listing text"}
+  - {id: lower_flex,  level: lower,    rect: [24, -0.5, 37.5, 6],   prov: inferred, conf: low, tol: 2, src: "placeholder: closet/storage/stair"}
+  - {id: bedroom_4,   level: basement, rect: [0.5, 0.5, 11, 12],    prov: inferred, conf: low, tol: 2, src: "Z listing: non-conforming"}
+  - {id: laundry_storage, level: basement, rect: [0.5, 12, 17.5, 23.5], prov: inferred, conf: low, tol: 2, src: "Z listing"}
+
+# Stairs: all half-flights run along the shared wall at x = 18 (typical 4-split). Positions are guesses.
+stairs:
+  - {id: main_to_upper,   from: main,  to: upper,    rect: [14.5, 4, 17.5, 11],  prov: inferred, conf: low, tol: 2}
+  - {id: main_to_lower,   from: main,  to: lower,    rect: [14.5, 13, 17.5, 20], prov: inferred, conf: low, tol: 2, src: "Z12-13: rail rises from family room toward dining"}
+  - {id: lower_to_basement, from: lower, to: basement, rect: [14.5, 13, 17.5, 20], prov: inferred, conf: low, tol: 3, src: "often stacked under main_to_lower"}
+
+# Openings: wall = front (y min) | back (y max) | left (x min) | right (x max) of the level's footprint.
+# span = [start, end] along the wall in model x (front/back) or y (left/right). sill/head = z above level floor.
+openings:
+  - {id: front_door,    level: main,  wall: front, kind: door,   span: [12.5, 15.5], sill: 0,   head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1; stoop at x 12-18"}
+  - {id: living_window, level: main,  wall: front, kind: window, span: [3, 9],       sill: 3,   head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1"}
+  - {id: patio_slider,  level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0,   head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Z listing; canopy x 0-12"}
+  - {id: upper_front_window, level: upper, wall: front, kind: window, span: [25, 31], sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1"}
+  - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25, 31], sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Z1; partly below grade"}
+
+roofs:
+  - {id: main_roof,  over: main,  form: gable, ridge_axis: x, pitch: "5/12", overhang: 1.0, prov: inferred, conf: medium, tol: 1, src: "Z1 side gable; A gable/asphalt"}
+  - {id: stack_roof, over: upper, form: gable, ridge_axis: y, pitch: "6/12", overhang: 1.0, prov: inferred, conf: medium, tol: 1, src: "Z1 front-facing gable"}
+
+site:
+  lot_area_sf: {value: 10846, prov: researched, src: A}
+  grade_z: {value: -2.5, prov: inferred, conf: low, tol: 1, src: "Z1: main floor ~3 steps above grade at stoop"}
+  features:
+    - {id: canopy_patio, kind: patio_with_pergola, rect: [0, 24, 12, 36], prov: imported, tol: 1, src: "P sketch TY 12 x 12; Z19-23"}
+    - {id: front_stoop,  kind: deck,               rect: [12, -5, 18, 0], prov: imported, tol: 1, src: "P sketch W 5 x 6; Z1"}
+  outbuildings:
+    - {id: garage, kind: detached_garage, size: [24, 24], year_built: 1982, position: unknown, prov: researched, src: "P detached structure; Z20"}
+
+open_questions:
+  - "Compass direction the front faces."
+  - "Room layout: which rooms sit where on each level (everything under rooms/stairs is a low-confidence guess)."
+  - "Garage position relative to the house."
+  - "Gas meter present? (heat: assessor electric vs Zillow gas)"

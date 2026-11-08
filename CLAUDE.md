@@ -14,7 +14,9 @@ Saves money and time: no paid contractor/designer consultations, and no time spe
 
 ## Current milestone
 
-1. MVP house model in Blender: no materials, dimensions accurate to **±1 inch** of measured values. Verified by a top-down render with dimension labels, checked against `house/model.yaml`.
+1. MVP house model in Blender: no materials, dimensions accurate to **±1 ft** (assessor-sketch resolution). Verified by a top-down render with dimension labels, checked against `house/model.yaml`.
+
+**Precision is progressive.** Cycle 1 runs on public records at ±1 ft. Each later cycle tightens only what its project touches: measure the rooms and walls in scope to ±1 inch, and leave the rest at whatever precision it already has. `model.yaml` records each value's tolerance next to its provenance.
 2. One full cycle (consultation → proposal) completed, with every intermediate artifact kept. The data is the architecture.
 
 ## Workflow

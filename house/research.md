@@ -35,7 +35,7 @@ _Public facts about the house. Every entry gets a source and a date retrieved. P
 | Exterior wall | Hardboard siding, plus 152 sf of veneer | researched | A |
 | Roof | Gable, asphalt shingle | researched | A |
 | Bedrooms | 3 above grade, plus a non-conforming 4th in the basement | researched | A, Z |
-| Bathrooms | ⚠ Assessor: 1 full bath, 0 toilet rooms. Zillow: 2 baths (a half bath near the family room) | conflict | A, Z |
+| Bathrooms | 1 full (upper) + 1 half (with the family room, per listing text). The assessor records only the full bath. | researched | A, Z |
 | Rooms | 5 | researched | A |
 | Fireplace | 1, in the family room | researched | A, Z |
 | Heating / cooling | Electric forced air; 100% air-conditioned | researched | A |
@@ -48,6 +48,25 @@ _Public facts about the house. Every entry gets a source and a date retrieved. P
 | Deck | 30 sf (probably a stoop or landing) | researched | A |
 | Radon | Mitigation system installed | researched | Z |
 | Construction grade | 4+05; condition "Normal" | researched | A |
+
+## Listing photos [Z], viewed 2026-11-08
+
+The 2022 listing (DMMLS #654078) has 23 photos. They were viewed in a browser, not saved: they're the listing agent's copyrighted photos. Photo numbers follow Zillow's gallery order.
+
+| Photo | Shows | What it tells the model |
+| :--- | :--- | :--- |
+| 1 | Front elevation | From the street, the **one-story main section is on the left** (door, stoop, one window; brick below the window line) and the **two-story stack is on the right**: brick lower level with one window, sided upper level with one window and a front-facing gable. The upper level appears to overhang the brick slightly, which matches the sketch's 1 ft strips. The main roof is a side gable with its ridge parallel to the street. |
+| 2–3 | Living room | Front room on the main level, with the entry door opening into it |
+| 4–9 | Kitchen + dining | Open kitchen/dining at the back of the main level; sliders from the dining area to the patio; island |
+| 10 | Fireplace | **Wood-burning brick fireplace** with glass doors, flanked by built-in shelves |
+| 11–14 | Family room | Large room with the fireplace; stair railings rising out of it toward the main level ("steps off the dining area") |
+| 15–18 | Bedrooms | Three bedrooms with ceiling fans; one used as an office; bifold closets |
+| 19, 21–23 | Back yard | Pergola-covered patio off the back of the main section; partly fenced yard |
+| 20 | Garage | **Separate gable-roofed building** beside the patio: confirms the assessor's "detached" |
+
+Listing text adds: 3 bedrooms + full bath upstairs (tiled floor, new tub surround); family room with fireplace, built-in shelving and a **½ bath**; basement with laundry, storage and the non-conforming 4th bedroom.
+
+Zillow's fact sheet conflicts with the assessor on two points. **Garage "attached"** is contradicted by photo 20 and the assessor, so it's treated as detached. **Heat "forced air, gas"** vs the assessor's "electric forced air" is unresolved; the gas meter question settles it.
 
 ## Footprint from the assessor sketch [P]
 
@@ -70,8 +89,12 @@ Exterior dimensions in whole feet (assessor sketches round; treat as `imported`,
 ```
 
 - **Overall:** 38 ft wide. The west section is 18 × 24 (432 sf); the east section is 20 × 26 (520 sf), stepping out 1 ft past the west section on both long sides. Together: **952 sf, all over basement/lower levels.**
-- **Main living area 992 sf = 952 + two 1 × 20 ft strips** with no basement under them (Basement% 0). They run along both long sides of the east section. Most likely reading (`inferred`, medium): the upper level of the split cantilevers about 1 ft past the walls below on the front and back. Verify on site: look for a floor overhang above the lower-level siding.
-- **20 × 26 east section = 520 sf = the finished-basement figure.** Likely (`inferred`, medium) the east section is the upper/lower stack and the west 18 × 24 section is the main level over the basement or crawl.
+- **The two 1 × 20 ft strips** (Basement% 0) sit just outside the east section's front and back edges, so the upper level is 20 × 28 and overhangs the lower level by about 1 ft on each side. Photo 1 shows that overhang above the brick.
+- **The areas reconcile cleanly under this reading** (`inferred`, medium-high):
+  - **Living area 992** = main 18 × 24 (432) + upper 20 × 28 (560).
+  - **"Basement" 952** = basement under main 18 × 24 (432) + lower level 20 × 26 (520).
+  - **Finished basement 520** = the lower level exactly (family room, ½ bath). So the assessor carries the basement under main as unfinished, even though the listing puts the 4th bedroom down there.
+- The west section (left from the street) is the main level, and the east section (right) is the upper/lower stack. The lower level's front wall sits about 1 ft in front of the main section's.
 - **Canopy/patio:** 12 × 12, off the 24 ft side of the west section (the covered patio off the dining sliders). **Deck:** 5 × 6, by the front, at the joint between the sections (likely the entry stoop, i.e. the 1995 "replace step" permit).
 
 **Listing layout notes [Z]:** updated main level; sliding doors from the dining area to the covered patio; a family room with fireplace near the dining area; a half bath; a basement with the 4th bedroom, laundry and storage.
@@ -109,12 +132,12 @@ _What's typical for a 1978 Central-Iowa 4-level split. All of these are `inferre
 
 ## Open questions for the measurement interview
 
-1. Bathrooms: is there a half bath (Zillow) or not (assessor)? Which level?
+1. ~~Half bath?~~ Listing text puts a ½ bath with the family room (lower level). Confirm its location.
 2. ~~Is the garage attached or detached?~~ Resolved: detached, 24 × 24, built 1982 [P]. Remaining: where is it relative to the house, and is it in scope for the model?
 3. Is the house mirrored relative to 523 Village Ct? Which compass direction does the front face?
 3a. Does the sketch reading hold: west 18 × 24 = main level, east 20 × 26 = upper/lower stack, with ~1 ft upper-level overhangs front and back?
 4. What does the radon system run through? (pipe route constrains basement and lower-level changes)
-5. Is the fireplace wood-burning, gas, or electric insert? Is there a gas meter?
+5. ~~Fireplace type?~~ Wood-burning brick (photo 10). Still open: is there a gas meter? (Zillow says gas heat, assessor says electric.)
 6. Attic: trusses or rafters?
 7. Which rooms make up the "updated main level"? When was it done, and was it permitted?
 
