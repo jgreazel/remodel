@@ -1,0 +1,22 @@
+# Claude Code local (per-machine) settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+
+# Blender autosave backups
+*.blend1
+*.blend2
