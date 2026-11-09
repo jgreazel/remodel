@@ -54,15 +54,15 @@ rooms:
   # upper — climb heading +x; bath is the first door on the right (front wall); main bedroom shares a wall with it, front windows.
   # Back half per Jon's plan review 2026-11-08: the left half of the old bedroom_2 is not upper living space; bedroom_2 = right
   # half of old b2 + left half of old b3; bedroom_3 = right half of old b3 and runs forward into where the hall used to end.
-  - {id: hall_upper,      level: upper,    parts: [[18.5, 11, 28, 14.5], [25.25, 14.5, 28, 18]], prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan review #2: hall runs +x then hooks north at its right end to bedroom_2; J IMG_2493"}
+  - {id: hall_upper,      level: upper,    parts: [[18.5, 11, 30.5, 14.5], [28, 14.5, 30.5, 18]], prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan review #2: hall runs +x then hooks north at its right end to bedroom_2; J IMG_2493"}
   - {id: bath_full,       level: upper,    rect: [18.5, -1.5, 24.5, 11],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: first door on right, on front wall; J IMG_2494 long narrow bath, tub at the far (front) end"}
   - {id: bedroom_main,    level: upper,    rect: [24.5, -1.5, 37.5, 11],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: largest; shares wall with bath; front windows; J IMG_2495-2496"}
-  - {id: bedroom_2,       level: upper,    parts: [[23.25, 18, 28, 25.5], [28, 20, 37.5, 25.5]], prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan reviews: right half of old b2 + back half of old b3, entered from the hall hook"}
-  - {id: bedroom_3,       level: upper,    rect: [28, 11, 37.5, 20],      prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan review #2: rectangle behind the main bedroom, shares its north wall; J IMG_2497-2498 (one of b2/b3)"}
+  - {id: bedroom_2,       level: upper,    rect: [23.25, 18, 30.5, 25.5],   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3"}
+  - {id: bedroom_3,       level: upper,    rect: [30.5, 11, 37.5, 25.5],    prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3: full-depth rectangle; shares the main bedroom's north wall; J IMG_2497-2498 (one of b2/b3)"}
   # closets (closet_of: drawn inside the parent room, no overlap warning)
   - {id: closet_main,     level: upper,    rect: [29, 9, 36, 11],         closet_of: bedroom_main, prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: on the main bedroom's north wall, shared with bedroom_3; J IMG_2496"}
-  - {id: closet_b3,       level: upper,    rect: [28, 15, 30.5, 20],      closet_of: bedroom_3,    prov: inferred, conf: low,    tol: 2, src: "J IMG_2498; position a guess"}
-  - {id: closet_b2,       level: upper,    rect: [23.25, 14.5, 25.25, 18], closet_of: bedroom_2,   prov: inferred, conf: low,    tol: 2, src: "space left of the hall hook; opens north into bedroom_2; a guess"}
+  - {id: closet_b3,       level: upper,    rect: [30.5, 11, 37.5, 12.75], closet_of: bedroom_3,    prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3"}
+  - {id: closet_b2,       level: upper,    rect: [23.25, 14.5, 28, 18], closet_of: bedroom_2,   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3: closet between the hall and bedroom_2 (owner/opening side a guess)"}
   # lower — "it's all one room" (Jon 2026-11-08); the louvered bifold in the family room is the half-bath door
   - {id: family_room,     level: lower,    parts: [[24, -0.5, 37.5, 6], [18.5, 6, 37.5, 24.5]], prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: one room, couch + TV; J IMG_2486-2487; fireplace + built-ins"}
   - {id: bath_half,       level: lower,    rect: [18.5, -0.5, 24, 6],     prov: inferred, conf: low,    tol: 2, src: "Jon 2026-11-08: off the family room via louvered bifold; J IMG_2484-2485; position still a guess"}
@@ -111,35 +111,35 @@ walls:
     tol: 2
     src: "Jon 2026-11-08 walkthrough"
   - {id: w_up_bath_main, level: upper, from: [24.5, -1.5], to: [24.5, 11], bearing: unlikely, bearing_basis: "parallel to likely joist span; verify in attic", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08: main bedroom shares a wall with the bath"}
-  # Hall runs +x from the stair, then hooks left (north) at its right end to bedroom_2's door (Jon 2026-11-08 review #2).
-  - {id: w_up_hall_back, level: upper, from: [18.5, 14.5], to: [25.25, 14.5], bearing: unknown, bearing_basis: "parallel to the center line; verify in attic", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan review #2"}
-  - {id: w_up_hook_left, level: upper, from: [25.25, 14.5], to: [25.25, 18], bearing: unlikely, bearing_basis: "hall hook / closet partition", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan review #2"}
-  - id: w_up_b3_west
-    level: upper
-    from: [28, 11]
-    to: [28, 20]
-    bearing: unlikely
-    bearing_basis: "bedroom_3's hall-side wall, parallel to likely joist span; verify in attic"
-    doors:
-      - {id: d_bedroom_3, span: [11.5, 14], kind: door, rooms: [bedroom_3, hall_upper]}
-    prov: inferred
-    conf: low
-    tol: 2
-    src: "Jon 2026-11-08 plan review #2: bedroom_3 is a rectangle behind the main bedroom"
+  # Upper back half per Jon's markup #3 (2026-11-08): hall runs +x to x 30.5 and hooks north at its right end (x 28-30.5)
+  # to bedroom_2's door; a closet fills x 23.25-28 between the hall and bedroom_2; bedroom_3 is the full-depth right column.
+  - {id: w_up_hall_back, level: upper, from: [18.5, 14.5], to: [28, 14.5], bearing: unknown, bearing_basis: "parallel to the center line; verify in attic", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan markup #3"}
+  - {id: w_up_hook_left, level: upper, from: [28, 14.5], to: [28, 18], bearing: unlikely, bearing_basis: "closet / hall hook partition", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan markup #3"}
   - id: w_up_hook_top
     level: upper
     from: [23.25, 18]
-    to: [28, 18]
+    to: [30.5, 18]
     bearing: unlikely
-    bearing_basis: "bedroom_2's south wall at the hall hook"
+    bearing_basis: "bedroom_2's south wall"
     doors:
-      - {id: d_closet_b2, span: [23.5, 25], kind: bifold, rooms: [bedroom_2]}
-      - {id: d_bedroom_2, span: [25.5, 27.75], kind: door, rooms: [bedroom_2, hall_upper]}
+      - {id: d_closet_b2, span: [24, 27.5], kind: bifold, rooms: [bedroom_2]}
+      - {id: d_bedroom_2, span: [28.25, 30.25], kind: door, rooms: [bedroom_2, hall_upper]}
     prov: inferred
     conf: low
     tol: 2
-    src: "Jon 2026-11-08 plan review #2: enter bedroom_2 going north through the door at the top of the hook"
-  - {id: w_up_b2_b3, level: upper, from: [28, 20], to: [37.5, 20], bearing: unknown, bearing_basis: "bedroom divider parallel to the center line; verify in attic", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan review #2"}
+    src: "Jon 2026-11-08 plan markup #3: enter bedroom_2 going north from the hall hook; which side the closet opens to is a guess"
+  - id: w_up_b2_b3
+    level: upper
+    from: [30.5, 11]
+    to: [30.5, 25.5]
+    bearing: unlikely
+    bearing_basis: "bedroom divider, parallel to likely joist span; verify in attic"
+    doors:
+      - {id: d_bedroom_3, span: [12.75, 14.75], kind: door, rooms: [bedroom_3, hall_upper]}
+    prov: inferred
+    conf: medium
+    tol: 2
+    src: "Jon 2026-11-08 plan markup #3: full-depth line at x ~30.5; bedroom_3 is a rectangle to its right"
   # closets
   - id: w_up_closet_main_front
     level: upper
@@ -155,19 +155,18 @@ walls:
     src: "Jon 2026-11-08: main bedroom closet on the wall shared with bedroom_3; J IMG_2496 bypass doors"
   - {id: w_up_closet_main_w, level: upper, from: [29, 9], to: [29, 11], bearing: "no", bearing_basis: "closet side", prov: inferred, conf: medium, tol: 2, src: "J IMG_2496"}
   - {id: w_up_closet_main_e, level: upper, from: [36, 9], to: [36, 11], bearing: "no", bearing_basis: "closet side", prov: inferred, conf: medium, tol: 2, src: "J IMG_2496"}
-  - id: w_up_closet_b3_e
+  - id: w_up_closet_b3_front
     level: upper
-    from: [30.5, 15]
-    to: [30.5, 20]
+    from: [30.5, 12.75]
+    to: [37.5, 12.75]
     bearing: "no"
-    bearing_basis: "closet front"
+    bearing_basis: "closet front, backs onto the main bedroom's closet"
     doors:
-      - {id: d_closet_b3, span: [16, 18.5], kind: door, rooms: [bedroom_3]}
+      - {id: d_closet_b3, span: [32.5, 37], kind: bypass, rooms: [bedroom_3]}
     prov: inferred
-    conf: low
+    conf: medium
     tol: 2
-    src: "J IMG_2498 (closet door beside the entry door); position a guess"
-  - {id: w_up_closet_b3_s, level: upper, from: [28, 15], to: [30.5, 15], bearing: "no", bearing_basis: "closet side", prov: inferred, conf: low, tol: 2, src: "guess"}
+    src: "Jon 2026-11-08 plan markup #3"
   - {id: w_up_b2_left, level: upper, from: [23.25, 14.5], to: [23.25, 25.5], bearing: unknown, bearing_basis: "edge of the area Jon says isn't upper living space; what's behind it is an open question", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan review"}
   # lower
   - {id: w_low_bath_side, level: lower, from: [24, -0.5], to: [24, 6], bearing: unlikely, bearing_basis: "bath partition", prov: inferred, conf: low, tol: 2, src: "position guessed"}
@@ -263,8 +262,8 @@ fixtures:
   - {id: lt_hall_upper,       room: hall_upper,     kind: pendant,     at: [22, 12.75],  prov: imported, tol: 3, src: "J IMG_2493"}
   - {id: lt_bath_full_vanity, room: bath_full,      kind: vanity_bar,  at: [21.5, 8],    mount: wall, prov: imported, tol: 3, src: "J IMG_2494"}
   - {id: lt_bedroom_main_fan, room: bedroom_main,   kind: ceiling_fan, at: [31, 4.75],   prov: imported, tol: 3, src: "J IMG_2495-2496"}
-  - {id: lt_bedroom_2_fan,    room: bedroom_2,      kind: ceiling_fan, at: [31, 22.75],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
-  - {id: lt_bedroom_3_fan,    room: bedroom_3,      kind: ceiling_fan, at: [33.5, 15.5],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
+  - {id: lt_bedroom_2_fan,    room: bedroom_2,      kind: ceiling_fan, at: [26.9, 22],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
+  - {id: lt_bedroom_3_fan,    room: bedroom_3,      kind: ceiling_fan, at: [34, 19],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
   - {id: lt_family_fan,       room: family_room,    kind: ceiling_fan, at: [28, 15],     prov: imported, tol: 3, src: "J IMG_2486"}
   - {id: lt_family_track,     room: family_room,    kind: track,       at: [28, 23],     length: 4, prov: inferred, conf: low, tol: 4, src: "J IMG_2486 track over the fireplace; fireplace position unknown"}
   - {id: lt_family_cans,      room: family_room,    kind: recessed,    at: [31, 2],      prov: imported, tol: 3, src: "J IMG_2487 cans near the window (count TBD)"}
@@ -287,6 +286,9 @@ openings:
   - {id: living_window,      level: main,  wall: front, kind: window, span: [5, 10.5],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo; flush with wall"}
   - {id: patio_slider,       level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Jon 2026-11-08: kitchen sliders to back; canopy x 0-12"}
   - {id: upper_front_window, level: upper, wall: front, kind: window, span: [26, 32],     sill: 2.5, head: 6.75, bay: {depth: 1.0, roof: shed}, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo: box bump-out with its own shed roof; Jon: main bedroom windows face front"}
+  - {id: b2_back_window,     level: upper, wall: back,  kind: window, span: [25, 27.75],  sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 plan markup #3"}
+  - {id: b3_back_window,     level: upper, wall: back,  kind: window, span: [32, 33.5],   sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 plan markup #3"}
+  - {id: b3_side_window,     level: upper, wall: right, kind: window, span: [14, 16],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 plan markup #3"}
   - {id: lower_front_window, level: lower, wall: front, kind: window, span: [25.5, 31],   sill: 4, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1; partly below grade"}
 
 roofs:
