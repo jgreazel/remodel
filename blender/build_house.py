@@ -179,8 +179,10 @@ def build_rooms():
         parts = room_parts(r)
         z = LEVELS[r["level"]]["floor_z"]
         i = INT_T / 2
-        lift = 0.005 if r.get("finished") is False else 0.02
-        mat = ((r.get("finish") or {}).get("floor") or {}).get("material")
+        lift = 0.005 if r.get("finished") is False else (0.04 if r.get("closet_of") else 0.02)
+        parent = next((p for p in M["rooms"] if p["id"] == r.get("closet_of")), None)
+        mat = ((r.get("finish") or {}).get("floor") or {}).get("material") or \
+              (((parent or {}).get("finish") or {}).get("floor") or {}).get("material")
         col = FLOOR.get(mat) or ((0.9, 0.9, 0.88, 1) if r.get("finished") is False else pastel(r["id"]))
         for k, (px0, py0, px1, py1) in enumerate(parts):
             # parts that touch share an edge: don't inset there, so an L reads as one floor
@@ -198,6 +200,8 @@ def build_rooms():
         dims = " + ".join(f"{fmt_ft(p[2] - p[0])} x {fmt_ft(p[3] - p[1])}" for p in parts)
         body = f"{r['id']}{conf}\n{dims}" + (f"\n{mat}" if mat else "")
         size = max(0.4, min(0.85, (x1 - x0) / 11))
+        if r.get("closet_of"):
+            body, size = "CL", 0.45
         if r.get("finished") is False:
             body = f"{r['id']} ({r.get('conf', '')})\n{r.get('note', '')}"
             text(f"label.{r['id']}", body, (x0 + x1) / 2, y0 + 3.0, z + 0.1, 0.55, INK, [f"label:{r['level']}"])

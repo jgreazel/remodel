@@ -265,6 +265,8 @@ def validate(m: dict) -> tuple[list[str], list[str], list[str]]:
         for b in rooms[i + 1:]:
             if a.get("level") != b.get("level") or a.get("finished") is False or b.get("finished") is False:
                 continue
+            if a.get("closet_of") == b["id"] or b.get("closet_of") == a["id"]:
+                continue  # a closet sits inside its parent room by design
             ov = sum(overlap_area(p, q) for p in room_parts(a) for q in room_parts(b))
             if ov > 0.01:
                 warnings.append(f"room.{a['id']} overlaps room.{b['id']} by {ov:.1f} sf")
