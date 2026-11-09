@@ -6,6 +6,7 @@ _Public facts about the house. Every entry gets a source and a date retrieved. P
 - **[A] Polk County Assessor**: residential inventory export for Altoona, retrieved 2026-11-08. This house's row is saved as [imports/polk-assessor-record-2026-11-08.csv](imports/polk-assessor-record-2026-11-08.csv). Bulk file: https://web.assess.co.polk.ia.us/info/web/exports/res/inven/juris/AT.csv
 - **[Z] Zillow listing** (from the 2022 sale), summarized via web search on 2026-11-08; direct fetch was blocked. https://www.zillow.com/homedetails/514-Village-Ct-Altoona-IA-50009/823732_zpid
 - **[T] TopHap**: automated property summary, 2026-11-08. https://www.tophap.com/sitemap/usa/ia/polk/altoona/village-ct
+- **[J] Jon's interior photos**, 2026-11-08: 19 room photos (IMG_2480–2498) plus one of the unfinished basement taken from the bedroom doorway facing the front, in [imports/photos-2026-11-08/](imports/photos-2026-11-08/). Jon's notes from the same day: the carpet is at end of life and has smelled like the previous owner's dog since move-in; the "hardwood" in the kitchen is laminate, warping under the fridge from a water leak; the family-room louvered bifold is the half-bath door; the lower level is one family room.
 - **[P] Polk County Assessor parcel page + building sketch**, read in a browser on 2026-11-08. Sketch vector and areas are transcribed in [imports/polk-assessor-sketch-2026-11-08.txt](imports/polk-assessor-sketch-2026-11-08.txt), with a [screenshot](imports/polk-assessor-sketch-2026-11-08-screenshot.jpg). Parcel page: https://www.assess.co.polk.ia.us/cgi-bin/web/tt/infoqry.cgi?tt=card/card&dp=17100178117000
 
 ## Identity & lot
@@ -111,6 +112,16 @@ The Altoona Village plats contain 27 four-level splits built 1974–1980 [A]. Th
 | _near-twin:_ 507 Village Ct | Plat 3 | 1978 | 500 | 2 / 0 | GAR/484 + 264 |
 
 **Use:** any old listing photos or floor plans for these addresses are a strong import source for room layout. Treat them as `imported` with "twin, may be mirrored" noted until confirmed against measurements.
+
+## Interior observations [J], 2026-11-08
+
+The room-by-room finishes, walls and light fixtures are modeled in `model.yaml` (`walls`, `finishes`, `fixtures`). Findings that change the priors below:
+
+- **Popcorn ceilings in every finished room.** In a 1977–78 house they need an asbestos lab test before anyone scrapes, sands or cuts into them for lights or walls. This **needs licensed review**: an accredited lab or abatement contractor.
+- **The kitchen has a gas range** (IMG_2490 shows burner grates). That points to gas service, which contradicts the assessor's "electric" heat. Check the meter and the furnace label (IMG_2483).
+- **Load path clue:** the main supply-duct trunk in the unfinished basement runs parallel to the front wall (basement-from-bedroom photo). Trunks usually follow the center beam, with joists spanning front-to-back. That makes the living/kitchen partition (`w_main_center`) **likely load-bearing** (`inferred`, medium). Verify that a beam or post line sits under it.
+- **Kitchen floor is laminate, not hardwood**, and it is warping under the fridge. Find and fix the leak (the ice-maker line is the usual suspect) before replacing the floor.
+- **Carpet is at end of life**, with a pet odor since move-in. Odor in carpet usually reaches the pad and sometimes the subfloor, so plan to seal the subfloor when replacing it.
 
 ## Era / builder priors
 

@@ -43,7 +43,23 @@ SURFACE = {
     "mulch": (0.38, 0.27, 0.18, 1),
     "rock_mulch": (0.66, 0.62, 0.56, 1),
 }
-LABEL_LIFT = 6.0  # plan labels float above treads and furniture-height geometry, below the level's ceiling
+FLOOR = {  # plan color by floor finish, so "redo floors" options read at a glance
+    "carpet": (0.70, 0.64, 0.56, 1),
+    "laminate": (0.80, 0.60, 0.38, 1),
+    "hardwood": (0.68, 0.45, 0.25, 1),
+    "lvp": (0.82, 0.68, 0.50, 1),
+    "tile": (0.80, 0.82, 0.84, 1),
+    "concrete": (0.72, 0.72, 0.74, 1),
+    "painted_concrete": (0.62, 0.66, 0.72, 1),
+}
+BEARING_COL = {  # interior wall color by load-bearing prior
+    "likely": (0.78, 0.12, 0.1, 1),
+    "unknown": (0.95, 0.55, 0.1, 1),
+    "unlikely": (0.35, 0.35, 0.38, 1),
+    "no": (0.55, 0.55, 0.58, 1),
+}
+LIGHT = (1.0, 0.82, 0.15, 1)
+LABEL_LIFT = 9.0  # plan labels float above everything on their level (walls, light fixtures); hidden in the viewport
 
 
 def log(msg):
@@ -154,17 +170,34 @@ def build_level(name):
     text(f"{name}.dim.d", fmt_ft(y1 - y0), side_x, (y0 + y1) / 2, z + 0.1, 1.1, DIM, lab, rot=math.pi / 2)
 
 
+def room_parts(r):
+    return r.get("parts") or [r["rect"]]
+
+
 def build_rooms():
     for r in M["rooms"]:
-        x0, y0, x1, y1 = r["rect"]
+        parts = room_parts(r)
         z = LEVELS[r["level"]]["floor_z"]
         i = INT_T / 2
         lift = 0.005 if r.get("finished") is False else 0.02
-        col = (0.9, 0.9, 0.88, 1) if r.get("finished") is False else pastel(r["id"])
-        box(f"room.{r['id']}", x0 + i, y0 + i, z, x1 - i, y1 - i, z + lift, col, [r["level"]])
+        mat = ((r.get("finish") or {}).get("floor") or {}).get("material")
+        col = FLOOR.get(mat) or ((0.9, 0.9, 0.88, 1) if r.get("finished") is False else pastel(r["id"]))
+        for k, (px0, py0, px1, py1) in enumerate(parts):
+            # parts that touch share an edge: don't inset there, so an L reads as one floor
+            ins = [i, i, i, i]
+            for q in parts:
+                if q is parts[k]:
+                    continue
+                if abs(q[2] - px0) < 1e-6: ins[0] = 0
+                if abs(q[3] - py0) < 1e-6: ins[1] = 0
+                if abs(q[0] - px1) < 1e-6: ins[2] = 0
+                if abs(q[1] - py1) < 1e-6: ins[3] = 0
+            box(f"room.{r['id']}.{k}", px0 + ins[0], py0 + ins[1], z, px1 - ins[2], py1 - ins[3], z + lift, col, [r["level"]])
+        x0, y0, x1, y1 = max(parts, key=lambda p: (p[2] - p[0]) * (p[3] - p[1]))
         conf = "" if r.get("conf") in (None, "high") else f" ({r['conf']})"
-        body = f"{r['id']}{conf}\n{fmt_ft(x1 - x0)} x {fmt_ft(y1 - y0)}"
-        size = max(0.45, min(0.85, (x1 - x0) / 11))
+        dims = " + ".join(f"{fmt_ft(p[2] - p[0])} x {fmt_ft(p[3] - p[1])}" for p in parts)
+        body = f"{r['id']}{conf}\n{dims}" + (f"\n{mat}" if mat else "")
+        size = max(0.4, min(0.85, (x1 - x0) / 11))
         if r.get("finished") is False:
             body = f"{r['id']} ({r.get('conf', '')})\n{r.get('note', '')}"
             text(f"label.{r['id']}", body, (x0 + x1) / 2, y0 + 3.0, z + 0.1, 0.55, INK, [f"label:{r['level']}"])
@@ -194,6 +227,51 @@ def build_stairs():
             other = s["to"] if L == s["from"] else s["from"]
             text(f"label.stair.{s['id']}.{L}", f"{word} to {other}", (x0 + x1) / 2, (y0 + y1) / 2,
                  LEVELS[L]["floor_z"], 0.5, INK, [f"label:{L}"])
+
+
+def build_walls():
+    """Interior partitions: first-class, colored by bearing prior, with door openings cut through."""
+    for w in M.get("walls", []):
+        (ax, ay), (bx, by) = w["from"], w["to"]
+        lv = LEVELS[w["level"]]
+        z = lv["floor_z"]
+        h = w.get("height", lv["ceiling_height"])
+        t = w.get("thickness", INT_T) / 2
+        col = BEARING_COL.get(w["bearing"], WALL)
+        # cycle 1: no header over interior doors, so the opening reads in top-down plans
+        ops = [(d["span"][0], d["span"][1], 0, h) for d in w.get("doors", [])]
+        name = f"wall.{w['id']}"
+        if ay == by:
+            wall_run(name, "x", min(ax, bx), max(ax, bx), ay - t, ay + t, z, h, ops, [w["level"]])
+        else:
+            wall_run(name, "y", min(ay, by), max(ay, by), ax - t, ax + t, z, h, ops, [w["level"]])
+        for ob in bpy.data.objects:
+            if ob.name.startswith(name + "."):
+                ob.color = col
+
+
+def build_fixtures():
+    """Light fixtures as markers hung just under the ceiling (wall mounts sit at 6.5 ft)."""
+    size = {"ceiling_fan": 1.1, "chandelier": 0.8, "panel": 0.9}
+    for f in M.get("fixtures", []):
+        room = next(r for r in M["rooms"] if r["id"] == f["room"])
+        lv = LEVELS[room["level"]]
+        ztop = lv["floor_z"] + (6.5 if f.get("mount") == "wall" else lv["ceiling_height"] - 0.2)
+        x, y = f["at"]
+        if f.get("length"):  # linear fixtures (track, light bar, shop light) run along x unless axis: y
+            hl = f["length"] / 2
+            dx, dy = (hl, 0.25) if f.get("axis", "x") == "x" else (0.25, hl)
+            box(f"fixture.{f['id']}", x - dx, y - dy, ztop - 0.25, x + dx, y + dy, ztop, LIGHT, [room["level"]])
+            continue
+        me = bpy.data.meshes.new(f["id"])
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=8, radius=1.0)
+        bm.to_mesh(me)
+        bm.free()
+        ob = tag(bpy.data.objects.new(f"fixture.{f['id']}", me), f["id"], LIGHT, [room["level"]])
+        r = size.get(f["kind"], 0.4)
+        ob.location = (x, y, ztop - 0.15)
+        ob.scale = (r, r, 0.15)
 
 
 def build_roofs():
@@ -401,6 +479,8 @@ def main():
     for name in LEVEL_ORDER:
         build_level(name)
     build_rooms()
+    build_walls()
+    build_fixtures()
     build_stairs()
     build_openings()
     build_roofs()
@@ -411,6 +491,9 @@ def main():
     for name in LEVEL_ORDER:
         text(f"title.{name}", f"{name.upper()} LEVEL   floor {fmt_ft(LEVELS[name]['floor_z'])}   cycle 1: +/-1 ft footprint, rooms +/-2 ft",
              cx, by1 + 4, LEVELS[name]["floor_z"] + 0.1, 1.0, INK, [f"label:{name}"])
+        text(f"legend.{name}", "walls: red = likely load-bearing, orange = unknown, gray = unlikely/no (all need licensed review)"
+             "\nfloor color = finish; yellow = light fixture",
+             cx, by0 - 4, LEVELS[name]["floor_z"] + 0.1, 0.6, INK, [f"label:{name}"])
 
     sc, cam = setup_render()
     span = max(bx1 - bx0, by1 - by0) + 14

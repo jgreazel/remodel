@@ -33,7 +33,10 @@ ROOT = Path(__file__).resolve().parents[1]
 BASE_MODEL = ROOT / "house" / "model.yaml"
 BUILDER = ROOT / "blender" / "build_house.py"
 PROVENANCE = {"measured", "imported", "researched", "inferred"}
-LIST_SECTIONS = ("rooms", "stairs", "openings", "roofs", "checks")
+LIST_SECTIONS = ("rooms", "stairs", "openings", "roofs", "walls", "finishes", "fixtures", "checks")
+BEARING = {"likely", "unknown", "unlikely", "no"}
+FIXTURE_KINDS = {"ceiling_fan", "flush", "pendant", "lantern", "chandelier", "track", "recessed", "vanity_bar",
+                 "light_bar", "panel", "shop_light", "sconce"}
 
 
 # ---------- load + overlay ----------
@@ -79,6 +82,10 @@ def val(entry):
     return entry["value"] if isinstance(entry, dict) and "value" in entry else entry
 
 
+def finish_of(m: dict, room_id: str) -> dict:
+    return next((f for f in m.get("finishes", []) if f["id"] == room_id), {})
+
+
 def resolve(m: dict) -> dict:
     site = m.get("site", {})
     return {
@@ -89,10 +96,12 @@ def resolve(m: dict) -> dict:
                    "ceiling_height": val(lv["ceiling_height"])}
             for name, lv in m["levels"].items()
         },
-        "rooms": m.get("rooms", []),
+        "rooms": [{**r, "finish": finish_of(m, r["id"])} for r in m.get("rooms", [])],
         "stairs": m.get("stairs", []),
         "openings": m.get("openings", []),
         "roofs": m.get("roofs", []),
+        "walls": m.get("walls", []),
+        "fixtures": m.get("fixtures", []),
         "site": {
             "grade_z": val(site.get("grade_z", 0)),
             "front_bearing_deg": val(site.get("front_bearing_deg")),
@@ -107,8 +116,9 @@ def resolve(m: dict) -> dict:
 def resources(m: dict) -> dict[str, dict]:
     """Flat id -> definition map, the unit that plan diffs (like Terraform resource addresses)."""
     res = {f"level.{k}": v for k, v in m["levels"].items()}
-    for sec in ("rooms", "stairs", "openings", "roofs"):
+    for sec in ("rooms", "stairs", "openings", "roofs", "walls", "fixtures"):
         res.update({f"{sec[:-1]}.{e['id']}": e for e in m.get(sec, [])})
+    res.update({f"finish.{e['id']}": e for e in m.get("finishes", [])})
     site = m.get("site", {})
     res.update({f"feature.{e['id']}": e for e in site.get("features", [])})
     res.update({f"outbuilding.{e['id']}": e for e in site.get("outbuildings", [])})
@@ -145,6 +155,37 @@ def area(r) -> float:
     return (r[2] - r[0]) * (r[3] - r[1])
 
 
+def room_parts(r) -> list:
+    """A room is one rect, or `parts`: a list of non-overlapping rects (L-shapes etc.)."""
+    return r.get("parts") or ([r["rect"]] if "rect" in r else [])
+
+
+def room_area(r) -> float:
+    return sum(area(p) for p in room_parts(r))
+
+
+def shared_edge(a, b) -> float:
+    if abs(a[2] - b[0]) < 1e-6 or abs(b[2] - a[0]) < 1e-6:
+        return max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    if abs(a[3] - b[1]) < 1e-6 or abs(b[3] - a[1]) < 1e-6:
+        return max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    return 0.0
+
+
+def room_perimeter(r) -> float:
+    ps = room_parts(r)
+    per = sum(2 * (p[2] - p[0] + p[3] - p[1]) for p in ps)
+    return per - 2 * sum(shared_edge(a, b) for i, a in enumerate(ps) for b in ps[i + 1:])
+
+
+def wall_len(w) -> float:
+    return abs(w["to"][0] - w["from"][0]) + abs(w["to"][1] - w["from"][1])
+
+
+def in_rect(pt, r, eps=1e-6) -> bool:
+    return r[0] - eps <= pt[0] <= r[2] + eps and r[1] - eps <= pt[1] <= r[3] + eps
+
+
 def validate(m: dict) -> tuple[list[str], list[str], list[str]]:
     errors, warnings, passed = [], [], []
 
@@ -176,7 +217,7 @@ def validate(m: dict) -> tuple[list[str], list[str], list[str]]:
             errors.append(f"level.{name}: bad footprint rect")
 
     seen = set()
-    for sec in ("rooms", "stairs", "openings", "roofs"):
+    for sec in ("rooms", "stairs", "openings", "roofs", "walls", "fixtures"):
         for e in m.get(sec, []):
             addr = f"{sec[:-1]}.{e.get('id')}"
             if "id" not in e:
@@ -189,24 +230,76 @@ def validate(m: dict) -> tuple[list[str], list[str], list[str]]:
                 errors.append(f"{addr}: missing prov")
             prov_rule(addr, e)
             for lk in ("level", "from", "to", "over"):
-                if lk in e and e[lk] not in levels:
+                if lk in e and isinstance(e[lk], str) and e[lk] not in levels:
                     errors.append(f"{addr}: unknown level '{e[lk]}'")
             if "rect" in e and not rect_ok(e["rect"]):
                 errors.append(f"{addr}: bad rect {e['rect']}")
 
     for r in m.get("rooms", []):
         lv = levels.get(r.get("level"))
-        if lv and rect_ok(r.get("rect")) and not inside(r["rect"], lv["footprint"]["rect"]):
-            errors.append(f"room.{r['id']}: rect {r['rect']} outside {r['level']} footprint {lv['footprint']['rect']}")
+        parts = room_parts(r)
+        if not parts:
+            errors.append(f"room.{r['id']}: needs rect or parts")
+        for p in parts:
+            if not rect_ok(p):
+                errors.append(f"room.{r['id']}: bad part {p}")
+            elif lv and not inside(p, lv["footprint"]["rect"]):
+                errors.append(f"room.{r['id']}: {p} outside {r['level']} footprint {lv['footprint']['rect']}")
+
+    room_ids = {r["id"] for r in m.get("rooms", [])}
+    for fin in m.get("finishes", []):
+        addr = f"finish.{fin['id']}"
+        if fin["id"] not in room_ids:
+            errors.append(f"{addr}: no room with that id")
+        if "floor" in fin and "material" not in fin["floor"]:
+            errors.append(f"{addr}.floor: needs material")
+        for k in ("floor", "ceiling", "walls", "trim"):
+            f = fin.get(k)
+            if isinstance(f, dict):
+                if "prov" not in f:
+                    errors.append(f"{addr}.{k}: missing prov")
+                prov_rule(f"{addr}.{k}", f)
 
     rooms = m.get("rooms", [])
     for i, a in enumerate(rooms):
         for b in rooms[i + 1:]:
             if a.get("level") != b.get("level") or a.get("finished") is False or b.get("finished") is False:
                 continue
-            ov = overlap_area(a["rect"], b["rect"])
+            ov = sum(overlap_area(p, q) for p in room_parts(a) for q in room_parts(b))
             if ov > 0.01:
                 warnings.append(f"room.{a['id']} overlaps room.{b['id']} by {ov:.1f} sf")
+
+    for w in m.get("walls", []):
+        addr = f"wall.{w['id']}"
+        lv = levels.get(w.get("level"))
+        a, b = w.get("from"), w.get("to")
+        if not (isinstance(a, list) and isinstance(b, list) and len(a) == 2 and len(b) == 2):
+            errors.append(f"{addr}: needs from/to [x, y]")
+            continue
+        if (a[0] != b[0]) == (a[1] != b[1]):
+            errors.append(f"{addr}: walls must be axis-aligned and non-zero length")
+            continue
+        if lv and not (in_rect(a, lv["footprint"]["rect"]) and in_rect(b, lv["footprint"]["rect"])):
+            errors.append(f"{addr}: endpoint outside {w['level']} footprint")
+        if w.get("bearing") not in BEARING:
+            errors.append(f"{addr}: bearing must be one of {sorted(BEARING)}")
+        axis = 0 if a[1] == b[1] else 1
+        lo, hi = sorted((a[axis], b[axis]))
+        for d in w.get("doors", []):
+            s, e = d["span"]
+            if not (lo <= s < e <= hi):
+                errors.append(f"{addr}: door {d.get('id')} span {d['span']} not within wall ({lo}..{hi})")
+
+    room_by_id = {r["id"]: r for r in rooms}
+    for f in m.get("fixtures", []):
+        addr = f"fixture.{f['id']}"
+        r = room_by_id.get(f.get("room"))
+        if r is None:
+            errors.append(f"{addr}: unknown room '{f.get('room')}'")
+        elif not any(in_rect(f.get("at", [1e9, 1e9]), p) for p in room_parts(r)):
+            errors.append(f"{addr}: at {f.get('at')} not inside room.{r['id']}")
+        if f.get("kind") not in FIXTURE_KINDS:
+            errors.append(f"{addr}: kind '{f.get('kind')}' not in {sorted(FIXTURE_KINDS)}")
 
     for o in m.get("openings", []):
         lv = levels.get(o.get("level"))
@@ -326,9 +419,41 @@ def write_verify(m: dict, out: Path, errors, warnings, passed, model_hash) -> No
               "| Room | Level | W × D | Area | Tol | Prov / conf |",
               "| :--- | :--- | :--- | ---: | ---: | :--- |"]
     for r in m.get("rooms", []):
-        x = r["rect"]
-        lines.append(f"| {r['id']} | {r['level']} | {fmt_ft(x[2]-x[0])} × {fmt_ft(x[3]-x[1])} | {area(x):.0f} sf | "
+        ps = room_parts(r)
+        dims = " + ".join(f"{fmt_ft(x[2]-x[0])} × {fmt_ft(x[3]-x[1])}" for x in ps)
+        lines.append(f"| {r['id']} | {r['level']} | {dims} | {room_area(r):.0f} sf | "
                      f"±{r.get('tol', '?')} ft | {r.get('prov')}{' / ' + r['conf'] if 'conf' in r else ''} |")
+
+    # Quantities that drive estimates: floor area per finish, and baseboard run (perimeter less door widths).
+    door_w = {}
+    for w in m.get("walls", []):
+        for d in w.get("doors", []):
+            for rid in d.get("rooms", []):
+                door_w[rid] = door_w.get(rid, 0) + d["span"][1] - d["span"][0]
+    lines += ["", "## Finishes and quantities", "",
+              "Baseboard = room perimeter minus modeled interior doors (exterior doors and openings not yet subtracted). ±room tol.",
+              "",
+              "| Room | Floor | Area | Baseboard | Ceiling | Condition / notes |",
+              "| :--- | :--- | ---: | ---: | :--- | :--- |"]
+    for r in m.get("rooms", []):
+        f = finish_of(m, r["id"])
+        fl, ce, tr = f.get("floor") or {}, f.get("ceiling") or {}, f.get("trim") or {}
+        base = "none" if tr.get("baseboard") == "none" else f"{max(0.0, room_perimeter(r) - door_w.get(r['id'], 0)):.0f} lf"
+        lines.append(f"| {r['id']} | {fl.get('material', '?')} | {room_area(r):.0f} sf | {base} | "
+                     f"{ce.get('texture', '?')} | {fl.get('condition', '')} |")
+
+    lines += ["", "## Interior walls", "",
+              "Bearing status is a planning prior, never a decision: anything but `no` **needs licensed review** before removal.",
+              "",
+              "| Wall | Level | Length | Bearing | Doors | Basis |",
+              "| :--- | :--- | ---: | :--- | :--- | :--- |"]
+    for w in m.get("walls", []):
+        doors = ", ".join(f"{d['id']} ({d.get('kind', 'door')})" for d in w.get("doors", [])) or "-"
+        lines.append(f"| {w['id']} | {w['level']} | {fmt_ft(wall_len(w))} | {w['bearing']} | {doors} | {w.get('bearing_basis', w.get('src', ''))} |")
+
+    lines += ["", "## Lighting", "", "| Fixture | Room | Kind | Mount |", "| :--- | :--- | :--- | :--- |"]
+    for fx in m.get("fixtures", []):
+        lines.append(f"| {fx['id']} | {fx['room']} | {fx['kind']} | {fx.get('mount', 'ceiling')} |")
     (out / "verify.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

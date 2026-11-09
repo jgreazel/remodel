@@ -37,6 +37,18 @@ rooms:
 
 `plan --overlay` then reads as the change list for that option.
 
+## Interior layer
+
+Use these sections to model interior projects (walls, floors, lighting, trim):
+
+| Section | Resource | What an overlay does with it |
+| :--- | :--- | :--- |
+| `walls:` | `wall.<id>` | Axis-aligned partitions (`from`/`to` centerline, `doors`, optional `height`), each with `bearing: likely / unknown / unlikely / no` and its `bearing_basis`. Remove a wall with `{id: w_main_center, remove: true}`, or add a new one. Plans color walls by bearing. Any removal still **needs licensed review**. |
+| `finishes:` | `finish.<room id>` | Floor, ceiling, walls, trim (and anything else, like cabinets) per room. Restate a room's `floor` to swap materials. |
+| `fixtures:` | `fixture.<id>` | Light fixtures by room, kind and position. Add, move or remove them for a lighting plan. |
+
+Rooms can be L-shaped: use `parts: [[x0, y0, x1, y1], ...]` instead of `rect`. `verify.md` lists floor area per finish, baseboard linear feet, every wall's bearing status and every fixture. Those quantities feed the estimates.
+
 ## Requirements
 
 - Python 3.10+ with PyYAML: `python -m pip install pyyaml`
