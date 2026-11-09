@@ -214,15 +214,20 @@ def build_stairs():
         x0, y0, x1, y1 = s["rect"]
         za, zb = LEVELS[s["from"]]["floor_z"], LEVELS[s["to"]]["floor_z"]
         n = max(2, round(abs(zb - za) / 0.62))
-        run = (x1 - x0) / n
         lv = [s["from"], s["to"]]
+        along_y = s["dir"] in ("+y", "-y")
+        lo, hi = (y0, y1) if along_y else (x0, x1)
+        run = (hi - lo) / n
         for k in range(n):
             ztop = za + (k + 1) * (zb - za) / n
-            if s["dir"] == "+x":
-                a, b = x0 + k * run, x0 + (k + 1) * run
+            if s["dir"] in ("+x", "+y"):
+                a, b = lo + k * run, lo + (k + 1) * run
             else:
-                a, b = x1 - (k + 1) * run, x1 - k * run
-            box(f"stair.{s['id']}.{k}", a, y0, ztop - 0.15, b, y1, ztop, STAIR, lv)
+                a, b = hi - (k + 1) * run, hi - k * run
+            if along_y:
+                box(f"stair.{s['id']}.{k}", x0, a, ztop - 0.15, x1, b, ztop, STAIR, lv)
+            else:
+                box(f"stair.{s['id']}.{k}", a, y0, ztop - 0.15, b, y1, ztop, STAIR, lv)
         up = zb > za
         if not up:  # a down-flight sits below its own floor: mark the stairwell on the plan
             box(f"stairwell.{s['id']}", x0, y0, za + 0.03, x1, y1, za + 0.04, STAIRWELL, [f"label:{s['from']}"])

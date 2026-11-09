@@ -51,6 +51,7 @@ rooms:
   # main — "only two things on the level"
   - {id: living_room,     level: main,     rect: [0.5, 0.5, 17.5, 11],    prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: front door opens into it; Z2-3"}
   - {id: kitchen_dining,  level: main,     rect: [0.5, 11, 17.5, 23.5],   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: kitchen opens to back via sliders; Z4-9"}
+  - {id: closet_living,   level: main,     rect: [13.5, 5.25, 17.5, 11],  closet_of: living_room, prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4"}
   # upper — climb heading +x; bath is the first door on the right (front wall); main bedroom shares a wall with it, front windows.
   # Back half per Jon's plan review 2026-11-08: the left half of the old bedroom_2 is not upper living space; bedroom_2 = right
   # half of old b2 + left half of old b3; bedroom_3 = right half of old b3 and runs forward into where the hall used to end.
@@ -64,8 +65,9 @@ rooms:
   - {id: closet_b3,       level: upper,    rect: [30.5, 11, 37.5, 12.75], closet_of: bedroom_3,    prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3"}
   - {id: closet_b2,       level: upper,    rect: [23.25, 14.5, 28, 18], closet_of: bedroom_2,   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 plan markup #3: closet between the hall and bedroom_2 (owner/opening side a guess)"}
   # lower — "it's all one room" (Jon 2026-11-08); the louvered bifold in the family room is the half-bath door
-  - {id: family_room,     level: lower,    parts: [[24, -0.5, 37.5, 6], [18.5, 6, 37.5, 24.5]], prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: one room, couch + TV; J IMG_2486-2487; fireplace + built-ins"}
-  - {id: bath_half,       level: lower,    rect: [18.5, -0.5, 24, 6],     prov: inferred, conf: low,    tol: 2, src: "Jon 2026-11-08: off the family room via louvered bifold; J IMG_2484-2485; position still a guess"}
+  - {id: family_room,     level: lower,    parts: [[22, -0.5, 37.5, 7.25], [18.5, 7.25, 37.5, 18], [21.5, 18, 37.5, 24.5]], prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: one room around the bath/closet and the basement stair; J IMG_2486-2487"}
+  - {id: bath_half,       level: lower,    rect: [18.5, 1.5, 22, 7.25],   prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: front-left corner, behind the TV wall; J IMG_2484-2485"}
+  - {id: closet_lower,    level: lower,    rect: [18.5, -0.5, 22, 1.5],   closet_of: family_room, prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: closet in the front-left corner, in front of the bath"}
   # basement — bedroom immediately right at the stair foot; unfinished L around it
   - {id: bedroom_4,       level: basement, rect: [5, 15, 17.5, 23.5],     prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: smallish, right of stair foot (non-conforming); J IMG_2480-2481"}
   - {id: unfinished,      level: basement, rect: [0.5, 0.5, 17.5, 23.5],  prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: L of unfinished: laundry + shelves along driveway (x=0) wall; J IMG_2482-2483", finished: false, note: "L-shaped: this rect minus bedroom_4 and stairs"}
@@ -93,7 +95,21 @@ walls:
     conf: medium
     tol: 2
     src: "J IMG_2488 (wall with shelves between living room and kitchen; opening at right to the stairs)"
-  - {id: w_main_stair_side, level: main, from: [12, 11], to: [18, 11], bearing: likely, bearing_basis: "same mid-depth line as w_main_center; also carries the upper stair stringer", prov: inferred, conf: medium, tol: 2, src: "J IMG_2493 wall on the right of the up-flight"}
+  - {id: w_main_stair_side, level: main, from: [13.5, 11], to: [18, 11], bearing: likely, bearing_basis: "same mid-depth line as w_main_center; back wall of the living-room closet; carries the upper stair stringer", prov: inferred, conf: medium, tol: 2, src: "J IMG_2493; Jon 2026-11-08 walkthrough markup #4: no wall x 12-13.5 (open to the stair foot)"}
+  - id: w_main_closet_west
+    level: main
+    from: [13.5, 5.25]
+    to: [13.5, 11]
+    bearing: "no"
+    bearing_basis: "closet partition"
+    doors:
+      - {id: d_closet_living, span: [7.5, 10], kind: door, rooms: [living_room]}
+    prov: inferred
+    conf: low
+    tol: 2
+    src: "Jon 2026-11-08 walkthrough markup #4: closet in the living room's back-right corner; door side a guess (J IMG_2488)"
+  - {id: w_main_closet_front, level: main, from: [13.5, 5.25], to: [17.5, 5.25], bearing: "no", bearing_basis: "closet partition", prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4"}
+  - {id: w_main_rail_down_stair_top, level: main, from: [12, 17.5], to: [18, 17.5], height: 3, bearing: "no", bearing_basis: "railing (fence rail) at the down-stair", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: 'fence rail' at the DN-to-lower stair"}
   - {id: w_main_rail_down_stair, level: main, from: [12, 14.5], to: [12, 17.5], height: 3, bearing: "no", bearing_basis: "half wall with spindles (railing)", prov: imported, tol: 2, src: "J IMG_2490-2491"}
   - {id: w_main_rail_up_stair,   level: main, from: [12, 14.5], to: [18, 14.5], height: 3, bearing: "no", bearing_basis: "oak railing over the family room", prov: imported, tol: 2, src: "J IMG_2493"}
   # upper
@@ -169,19 +185,27 @@ walls:
     src: "Jon 2026-11-08 plan markup #3"
   - {id: w_up_b2_left, level: upper, from: [23.25, 14.5], to: [23.25, 25.5], bearing: unknown, bearing_basis: "edge of the area Jon says isn't upper living space; what's behind it is an open question", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 plan review"}
   # lower
-  - {id: w_low_bath_side, level: lower, from: [24, -0.5], to: [24, 6], bearing: unlikely, bearing_basis: "bath partition", prov: inferred, conf: low, tol: 2, src: "position guessed"}
-  - id: w_low_bath_back
+  - id: w_low_bath_east
     level: lower
-    from: [18.5, 6]
-    to: [24, 6]
+    from: [22, -0.5]
+    to: [22, 7.25]
     bearing: unlikely
-    bearing_basis: "bath partition"
+    bearing_basis: "bath / closet partition"
     doors:
-      - {id: d_bath_half, span: [19.5, 22], kind: bifold, rooms: [bath_half, family_room]}
+      - {id: d_closet_lower, span: [-0.25, 1.25], kind: door, rooms: [family_room]}
+      - {id: d_bath_half, span: [4, 6.5], kind: bifold, rooms: [bath_half, family_room]}
     prov: inferred
     conf: low
     tol: 2
-    src: "Jon 2026-11-08: louvered bifold off the family room is the half-bath door; J IMG_2484-2487"
+    src: "Jon 2026-11-08 walkthrough markup #4; Jon 2026-11-08: louvered bifold off the family room is the bath door (door side a guess)"
+  - {id: w_low_bath_back,  level: lower, from: [18.5, 7.25], to: [22, 7.25], bearing: unlikely, bearing_basis: "bath partition; the TV hangs on the family-room side", prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4"}
+  - {id: w_low_bath_front, level: lower, from: [18.5, 1.5],  to: [22, 1.5],  bearing: "no", bearing_basis: "bath / closet partition", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4"}
+  # Wing walls from both side walls at mid-depth, leaving a wide opening. They line up under the upper level's center
+  # wall, so the opening likely has a header/beam carrying it: likely bearing.
+  - {id: w_low_wing_left,  level: lower, from: [18.5, 10.5], to: [21.5, 10.5], bearing: likely, bearing_basis: "wing wall under the upper center line; probably supports a header over the wide opening. Verify: look for a dropped beam/header across the opening", prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 walkthrough markup #4"}
+  - {id: w_low_wing_right, level: lower, from: [32.25, 10.5], to: [37.5, 10.5], bearing: likely, bearing_basis: "same as w_low_wing_left", prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 walkthrough markup #4"}
+  - {id: w_low_basement_stair, level: lower, from: [21.5, 18], to: [21.5, 24.5], height: 3, bearing: "no", bearing_basis: "railing / half wall at the basement stair (type unconfirmed)", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: hatched = stair down to the basement"}
+  - {id: w_low_fireplace, level: lower, from: [36.75, 17.75], to: [36.75, 22.25], thickness: 1.5, bearing: "no", bearing_basis: "masonry fireplace on the right wall; chimney/hearth work needs licensed review", prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 walkthrough markup #4: FP on the right wall; J IMG_2486"}
   # basement
   - id: w_bsmt_bed4_front
     level: basement
@@ -237,7 +261,7 @@ finishes:
     ceiling: {texture: popcorn, prov: imported, src: "J IMG_2486"}
     walls: {paint: tan, prov: imported, src: "J IMG_2487"}
     trim: {baseboard: "white painted", prov: imported, src: "J IMG_2487"}
-    features: {fireplace: "brick, wood-burning with insert, built-in shelves both sides", prov: imported, src: "J IMG_2486"}
+    features: {fireplace: "brick, wood-burning with insert, built-in shelves both sides; on the right wall (x 37.5) at y ~18-22", tv: "on the left side, on the bath's back wall (y ~7.25)", prov: imported, src: "J IMG_2486-2487; Jon 2026-11-08 walkthrough markup #4"}
   - id: bath_half
     floor: {material: tile, look: "gray wood-look plank (tile or LVP)", prov: imported, src: "J IMG_2484-2485"}
     ceiling: {texture: popcorn, note: "bulkhead along one wall", prov: imported, src: "J IMG_2485"}
@@ -265,9 +289,9 @@ fixtures:
   - {id: lt_bedroom_2_fan,    room: bedroom_2,      kind: ceiling_fan, at: [26.9, 22],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
   - {id: lt_bedroom_3_fan,    room: bedroom_3,      kind: ceiling_fan, at: [34, 19],     prov: inferred, conf: medium, tol: 3, src: "J IMG_2497-2498 brass fan (one of b2/b3)"}
   - {id: lt_family_fan,       room: family_room,    kind: ceiling_fan, at: [28, 15],     prov: imported, tol: 3, src: "J IMG_2486"}
-  - {id: lt_family_track,     room: family_room,    kind: track,       at: [28, 23],     length: 4, prov: inferred, conf: low, tol: 4, src: "J IMG_2486 track over the fireplace; fireplace position unknown"}
+  - {id: lt_family_track,     room: family_room,    kind: track,       at: [35, 20],     length: 4, axis: y, prov: inferred, conf: medium, tol: 2, src: "J IMG_2486 track over the fireplace"}
   - {id: lt_family_cans,      room: family_room,    kind: recessed,    at: [31, 2],      prov: imported, tol: 3, src: "J IMG_2487 cans near the window (count TBD)"}
-  - {id: lt_bath_half_vanity, room: bath_half,      kind: vanity_bar,  at: [21, 0],      mount: wall, prov: imported, tol: 3, src: "J IMG_2484"}
+  - {id: lt_bath_half_vanity, room: bath_half,      kind: vanity_bar,  at: [19, 4.5],      mount: wall, prov: imported, tol: 3, src: "J IMG_2484"}
   - {id: lt_bedroom_4,        room: bedroom_4,      kind: flush,       at: [11, 19],     prov: imported, tol: 3, src: "J IMG_2480 LED flush mount"}
   - {id: lt_unfinished_shop,  room: unfinished,     kind: shop_light,  at: [4, 8],       length: 4, prov: imported, tol: 3, src: "J IMG_2483, basement-from-bedroom photo"}
 
@@ -277,14 +301,15 @@ fixtures:
 stairs:
   - {id: main_to_upper,     from: main,  to: upper,    rect: [12, 11, 18.5, 14.5],   dir: "+x", prov: inferred, conf: medium, tol: 2, src: "Jon 2026-11-08: walk to center, turn right to go up"}
   - {id: main_to_lower,     from: main,  to: lower,    rect: [12, 14.5, 18.5, 17.5], dir: "+x", prov: inferred, conf: low,    tol: 2, src: "Z: family room 'steps off the dining area'"}
-  - {id: lower_to_basement, from: lower, to: basement, rect: [12, 11, 18.5, 14.5],   dir: "-x", prov: inferred, conf: medium, tol: 2, src: "under main_to_upper; descending -x puts bedroom_4 on the right (+y)"}
+  - {id: lower_to_basement, from: lower, to: basement, rect: [18.5, 18, 21.5, 24.5], dir: "-y", prov: inferred, conf: low, tol: 2, src: "Jon 2026-11-08 walkthrough markup #4: hatched area at the back-left of the lower level; descending toward the front puts bedroom_4 on the right"}
 
 # Openings: wall = front (y min) | back (y max) | left (x min) | right (x max) of the level's footprint.
 # span = [start, end] along the wall in model x (front/back) or y (left/right). sill/head = z above level floor.
 openings:
   - {id: front_door,         level: main,  wall: front, kind: door,   span: [14, 17],     sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo; stoop at x 12-18; Jon: walk straight in to the stairs"}
   - {id: living_window,      level: main,  wall: front, kind: window, span: [5, 10.5],     sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo; flush with wall"}
-  - {id: patio_slider,       level: main,  wall: back,  kind: door,   span: [2, 8],       sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1.5, src: "Jon 2026-11-08: kitchen sliders to back; canopy x 0-12"}
+  - {id: patio_slider,       level: main,  wall: back,  kind: door,   span: [6.5, 11.5],  sill: 0, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 walkthrough markup #4"}
+  - {id: kitchen_back_window, level: main, wall: back, kind: window, span: [1.25, 4.25], sill: 3.5, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 walkthrough markup #4"}
   - {id: upper_front_window, level: upper, wall: front, kind: window, span: [26, 32],     sill: 2.5, head: 6.75, bay: {depth: 1.0, roof: shed}, prov: inferred, conf: medium, tol: 1,   src: "Z1 scaled off photo: box bump-out with its own shed roof; Jon: main bedroom windows face front"}
   - {id: b2_back_window,     level: upper, wall: back,  kind: window, span: [25, 27.75],  sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 plan markup #3"}
   - {id: b3_back_window,     level: upper, wall: back,  kind: window, span: [32, 33.5],   sill: 3, head: 6.75, prov: inferred, conf: medium, tol: 1, src: "Jon 2026-11-08 plan markup #3"}
@@ -323,7 +348,7 @@ checks:
   - {id: assessor_finished_bsmt, kind: footprint_area_sum, levels: [lower],           expect_sf: 520, tol_sf: 25, src: "A finished basement 520"}
 
 open_questions:
-  - "Lower level: which corner is the half bath in, and which wall has the fireplace?"
+  - "Basement stair: confirm it is the hatched back-left area of the lower level, and how the basement extends under it."
   - "Upper back: confirm the new bedroom_2 / bedroom_3 split, and what occupies the back-left area (x 18.5-23.25) that isn't upper living space."
   - "Upper: is there a hall/linen closet? (dropped when the bath was extended to meet the hall)"
   - "Load path: photo of the basement ceiling at mid-depth (beam/post line?) and the attic joist direction."
